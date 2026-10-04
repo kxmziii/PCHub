@@ -29,6 +29,7 @@
 
     <views:PathToIconConverter x:Key="PathToIcon"/>
     <views:CoverImageConverter x:Key="CoverImage"/>
+    <views:PingLevelBrushConverter x:Key="PingBrush"/>
 
     <!-- ===== ฟอนต์: อังกฤษใช้ Segoe UI, ไทยใช้ Leelawadee UI (ฟอนต์ไทยของ Windows) ===== -->
     <FontFamily x:Key="BodyFont">Segoe UI, Leelawadee UI</FontFamily>
@@ -157,6 +158,33 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource DangerSoft}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ปุ่มแถวเรียบๆ ไม่มีพื้น ชิดซ้าย (เช่น ป้ายปิงในเมนูซ้าย) -->
+    <Style x:Key="SubtleButton" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource HoverBg}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

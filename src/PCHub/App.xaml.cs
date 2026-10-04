@@ -16,6 +16,17 @@ public partial class App : Application
 
         var window = new MainWindow();
         MainWindow = window;
+#if DEBUG
+        // ตอนแคปหน้าจอ: เปิดหน้าต่างไว้นอกจอ ไม่แย่งโฟกัส จะได้ไม่กวนคนที่ใช้คอมอยู่
+        if (e.Args.Contains("--snapshot"))
+        {
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+            window.Left = -30000;
+            window.Top = 0;
+            window.ShowActivated = false;
+            window.ShowInTaskbar = false;
+        }
+#endif
         window.Show();
 
 #if DEBUG
@@ -35,13 +46,13 @@ public partial class App : Application
             var page = GetArg(e.Args, "--page");
             if (page == "mode-editor")
             {
-                var editor = new Views.ModeEditorWindow(Services.SettingsService.Current.Modes[0], isNew: false) { Owner = window };
+                var editor = new Views.ModeEditorWindow(Services.SettingsService.Current.Modes[0], isNew: false) { Owner = window, ShowActivated = false };
                 editor.Show();
                 target = editor;
             }
             else if (page == "boost")
             {
-                var boost = new Views.BoostSettingsWindow { Owner = window };
+                var boost = new Views.BoostSettingsWindow { Owner = window, ShowActivated = false };
                 boost.Show();
                 target = boost;
             }

@@ -31,7 +31,27 @@ public partial class MainWindow : Window
         _clock.Tick += (_, _) => UpdateSessionClock();
         Session.PropertyChanged += Session_PropertyChanged;
         Session.SessionEnded += Session_Ended;
+
+        _pingTimer.Tick += async (_, _) => await UpdatePingAsync();
+        Loaded += async (_, _) =>
+        {
+            await UpdatePingAsync();
+            _pingTimer.Start();
+        };
     }
+
+    // ===== ป้ายปิงที่เมนูซ้าย =====
+
+    private readonly DispatcherTimer _pingTimer = new() { Interval = TimeSpan.FromMinutes(1) };
+
+    private async Task UpdatePingAsync()
+    {
+        var result = await PingService.MeasureAsync(PingService.Targets[0], samples: 3);
+        PingText.Text = result.AverageMs is { } ms ? $"ปิงสิงคโปร์  {ms:0} ms" : "ต่อเน็ตไม่ได้";
+        PingDot.Fill = (Brush)new PingLevelBrushConverter().Convert(result.Level, typeof(Brush), null!, null!);
+    }
+
+    private void PingBadge_Click(object sender, RoutedEventArgs e) => ShowPage("tools");
 
     /// <summary>หน้าที่เปิดอยู่ตอนนี้</summary>
     public object? CurrentPage => PageHost.Content;

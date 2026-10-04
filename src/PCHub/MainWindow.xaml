@@ -51,6 +51,15 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- ป้ายปิงไปเซิร์ฟสิงคโปร์ อัปเดตทุกนาที -->
+                    <Button x:Name="PingBadge" Style="{StaticResource SubtleButton}" Margin="0,0,0,4"
+                            ToolTip="ปิงไปเซิร์ฟเวอร์สิงคโปร์ (อัปเดตทุกนาที) กดเพื่อดูละเอียด" Click="PingBadge_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="PingDot" Width="8" Height="8" Margin="2,0,14,0" VerticalAlignment="Center"
+                                     Fill="{StaticResource TextMuted}"/>
+                            <TextBlock x:Name="PingText" Text="กำลังวัดปิง..."/>
+                        </StackPanel>
+                    </Button>
                     <views:NavButton x:Name="NavSettings" Tag="settings" Icon="&#xE713;" Content="ตั้งค่า"
                                      Checked="Nav_Checked"/>
                     <TextBlock x:Name="VersionText" Margin="14,10,0,0" FontSize="12"
