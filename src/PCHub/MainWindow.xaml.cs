@@ -42,10 +42,23 @@ public partial class MainWindow : Window
     public async void StartBackgroundWork()
     {
         GameWatcher.Instance.Start();
+        AlertService.Instance.AlertRaised += alert => _tray?.ShowHint(alert.Title, alert.Message, () =>
+        {
+            ShowFromTray();
+            ShowPage(alert.Page);
+        });
+        AlertService.Instance.Start();
         _pingTimer.Start();
         await UpdatePingAsync();
+
+        // เช็คอัปเดตตอนเปิด แล้วเช็คซ้ำเรื่อยๆ (PC Hub อาจเปิดค้างไว้ที่มุมจอเป็นวันๆ)
+        await Task.Delay(TimeSpan.FromSeconds(5)); // รอให้โปรแกรมเปิดเสร็จก่อน ไม่แย่งเน็ต/เครื่องตอนเริ่ม
         await PrepareUpdateAsync();
+        _updateTimer.Tick += async (_, _) => await PrepareUpdateAsync();
+        _updateTimer.Start();
     }
+
+    private readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromHours(6) };
 
     // ===== ไอคอนมุมจอ =====
 
@@ -68,11 +81,10 @@ public partial class MainWindow : Window
 
     private Velopack.UpdateInfo? _pendingUpdate;
 
-    /// <summary>เช็คอัปเดตตอนเปิดโปรแกรม ถ้ามีจะโหลดเงียบๆ แล้วโชว์การ์ดแจ้งที่เมนูซ้าย</summary>
+    /// <summary>เช็คอัปเดต ถ้ามีจะโหลดเงียบๆ แล้วโชว์การ์ดแจ้งที่เมนูซ้าย</summary>
     private async Task PrepareUpdateAsync()
     {
-        if (!UpdateService.IsAvailable) return;
-        await Task.Delay(TimeSpan.FromSeconds(5)); // รอให้โปรแกรมเปิดเสร็จก่อน ไม่แย่งเน็ต/เครื่องตอนเริ่ม
+        if (!UpdateService.IsAvailable || _pendingUpdate != null) return; // โหลดไว้แล้ว รอติดตั้งอยู่
         _pendingUpdate = await UpdateService.PrepareAsync();
         if (_pendingUpdate == null) return;
 

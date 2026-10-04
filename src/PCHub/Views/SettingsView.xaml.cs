@@ -20,6 +20,7 @@ public partial class SettingsView : UserControl
         TraySwitch.IsChecked = SettingsService.General.MinimizeToTray;
         StartupSwitch.IsChecked = StartupService.IsEnabled;
         TrackSwitch.IsChecked = SettingsService.General.AutoTrackGames;
+        AlertSwitch.IsChecked = SettingsService.General.DealAlerts;
         _ready = true; // ตั้งค่าเริ่มต้นเสร็จ ต่อจากนี้กดสวิตช์ถึงจะบันทึก
 
         if (!UpdateService.IsAvailable)
@@ -41,6 +42,7 @@ public partial class SettingsView : UserControl
 
         SettingsService.General.MinimizeToTray = TraySwitch.IsChecked == true;
         SettingsService.General.AutoTrackGames = TrackSwitch.IsChecked == true;
+        SettingsService.General.DealAlerts = AlertSwitch.IsChecked == true;
         SettingsService.Save();
 
         if (sender == StartupSwitch)

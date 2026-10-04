@@ -89,6 +89,11 @@ public partial class App : Application
                 target = new BoostSettingsWindow { Owner = window, ShowActivated = false };
                 target.Show();
                 break;
+            case "add-watch":
+                target = new AddWatchWindow { Owner = window, ShowActivated = false };
+                target.Show();
+                ready = ((AddWatchWindow)target).SearchForTest(GetArg(args, "--search") ?? "cyberpunk");
+                break;
             case "storage":
                 window.ShowPage("cleaner");
                 ((CleanerView)window.CurrentPage!).ShowTab("storage");

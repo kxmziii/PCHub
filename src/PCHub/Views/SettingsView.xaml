@@ -48,6 +48,14 @@
                                            Text="เปิดเงียบๆ ไว้ที่มุมจอ ไม่เด้งหน้าต่างตอนเปิดเครื่อง"/>
                             </StackPanel>
                         </CheckBox>
+                        <CheckBox x:Name="AlertSwitch" Style="{StaticResource Switch}" Margin="0,6"
+                                  Checked="Switch_Changed" Unchecked="Switch_Changed">
+                            <StackPanel>
+                                <TextBlock Text="แจ้งเตือนดีล เกมแจกฟรี และแพตช์ใหม่"/>
+                                <TextBlock FontSize="12.5" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"
+                                           Text="เช็คทุก 3 ชั่วโมง แจ้งที่มุมจอเมื่อเกมที่เฝ้าราคาลด, Epic แจกฟรี, เกมที่เพิ่งเล่นมีแพตช์"/>
+                            </StackPanel>
+                        </CheckBox>
                         <CheckBox x:Name="TrackSwitch" Style="{StaticResource Switch}" Margin="0,6"
                                   Checked="Switch_Changed" Unchecked="Switch_Changed">
                             <StackPanel>

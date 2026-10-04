@@ -16,17 +16,10 @@ public static class DealsService
 
     private const string SteamUrl = "https://store.steampowered.com/api/featuredcategories?cc=th&l=english";
 
-    private static readonly HttpClient Http = CreateClient();
+    private static HttpClient Http => Web.Client;
     private static readonly CultureInfo Thai = new("th-TH");
 
     public record EpicFreeGames(List<Deal> Now, List<Deal> Upcoming);
-
-    private static HttpClient CreateClient()
-    {
-        var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("PCHub/0.1");
-        return client;
-    }
 
     public static async Task<EpicFreeGames> GetEpicFreeGamesAsync()
     {

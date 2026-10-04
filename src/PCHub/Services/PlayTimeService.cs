@@ -1,6 +1,5 @@
 using System.IO;
 using System.Text.Json;
-using Microsoft.Win32;
 using PCHub.Helpers;
 using PCHub.Models;
 
@@ -90,17 +89,7 @@ public static class PlayTimeService
         var result = new Dictionary<string, SteamStat>();
         try
         {
-            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
-            if (key?.GetValue("SteamPath") is not string steamPath) return result;
-
-            var userdata = Path.Combine(Path.GetFullPath(steamPath), "userdata");
-            if (!Directory.Exists(userdata)) return result;
-
-            var config = Directory.EnumerateDirectories(userdata)
-                .Select(d => Path.Combine(d, "config", "localconfig.vdf"))
-                .Where(File.Exists)
-                .OrderByDescending(File.GetLastWriteTime)
-                .FirstOrDefault();
+            var config = SteamAccount.LocalConfigPath();
             if (config == null) return result;
 
             var root = VdfParser.Parse(File.ReadAllText(config));

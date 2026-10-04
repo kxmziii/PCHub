@@ -35,10 +35,18 @@ public sealed class TrayIcon : IDisposable
         {
             if (e.Button == MouseButtons.Left) open();
         };
+        _icon.BalloonTipClicked += (_, _) => _onNotificationClick?.Invoke();
     }
 
-    /// <summary>กล่องข้อความเล็กๆ ที่เด้งจากมุมจอ</summary>
-    public void ShowHint(string title, string text) => _icon.ShowBalloonTip(5000, title, text, ToolTipIcon.None);
+    private Action? _onNotificationClick;
+
+    /// <summary>กล่องข้อความเล็กๆ ที่เด้งจากมุมจอ (onClick = ทำอะไรเมื่อกดที่ข้อความ)</summary>
+    public void ShowHint(string title, string text, Action? onClick = null)
+    {
+        _onNotificationClick = onClick;
+        // Windows รับข้อความได้ไม่เกิน 255 ตัวอักษร
+        _icon.ShowBalloonTip(5000, title, text.Length > 250 ? text[..247] + "..." : text, ToolTipIcon.None);
+    }
 
     public void Dispose()
     {

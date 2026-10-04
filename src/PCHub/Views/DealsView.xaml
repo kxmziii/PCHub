@@ -59,6 +59,69 @@
             </Button>
         </DataTemplate>
 
+        <!-- การ์ดเกมที่เฝ้าราคา (ลดอยู่ = ป้ายเขียว, เกมที่เพิ่มเองมีปุ่มเอาออก) -->
+        <DataTemplate x:Key="WatchDeal" DataType="{x:Type models:WatchedGame}">
+            <Button Style="{StaticResource GameCard}" Width="246" Margin="0,0,16,20" Click="Watch_Click"
+                    ToolTip="เปิดหน้าร้าน Steam">
+                <StackPanel>
+                    <Grid Height="115">
+                        <Border CornerRadius="10" Background="{StaticResource CardBg}">
+                            <Border CornerRadius="10">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="{Binding ImageUrl, Converter={StaticResource CoverImage}}"
+                                                Stretch="UniformToFill"/>
+                                </Border.Background>
+                            </Border>
+                        </Border>
+                        <Border CornerRadius="6" Padding="8,2" Margin="8" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#CC16171B"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsOnSale}" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource Success}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{Binding Badge}" FontSize="12.5">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsOnSale}" Value="True">
+                                                <Setter Property="Foreground" Value="{StaticResource AccentText}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="6" Width="28" Height="28"
+                                FontSize="11" Content="&#xE711;" ToolTip="เลิกเฝ้าราคา" Background="#CC16171B"
+                                Click="Unwatch_Click">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FromWishlist}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </Grid>
+                    <TextBlock Text="{Binding Name}" Margin="2,10,0,0" FontSize="13.5" TextTrimming="CharacterEllipsis"/>
+                    <StackPanel Orientation="Horizontal" Margin="2,3,0,0">
+                        <TextBlock Text="{Binding PriceText}" FontSize="13" Foreground="{StaticResource Accent}"/>
+                        <TextBlock Text="{Binding OriginalPriceText}" FontSize="12" Margin="8,0,0,0"
+                                   Foreground="{StaticResource TextMuted}" TextDecorations="Strikethrough"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </Button>
+        </DataTemplate>
+
         <ItemsPanelTemplate x:Key="Wrap">
             <WrapPanel/>
         </ItemsPanelTemplate>
@@ -90,6 +153,26 @@
 
             <ScrollViewer x:Name="DealsContent" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
                 <StackPanel Margin="0,0,12,0">
+                    <!-- เฝ้าราคา (Wishlist ของ Steam + เกมที่เพิ่มเอง) -->
+                    <StackPanel x:Name="WatchSection" Margin="0,0,0,8">
+                        <DockPanel Margin="0,0,0,12">
+                            <Button DockPanel.Dock="Right" Style="{StaticResource SecondaryButton}" VerticalAlignment="Top"
+                                    Margin="16,0,0,0" Click="AddWatch_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
+                                    <TextBlock Text="เฝ้าราคาเกม"/>
+                                </StackPanel>
+                            </Button>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitle}" Margin="0" Text="เฝ้าราคา  ·  Steam"/>
+                                <TextBlock x:Name="WatchStatus" FontSize="12.5" TextWrapping="Wrap"
+                                           Foreground="{StaticResource TextMuted}"/>
+                            </StackPanel>
+                        </DockPanel>
+                        <ItemsControl x:Name="WatchList" ItemTemplate="{StaticResource WatchDeal}"
+                                      ItemsPanel="{StaticResource Wrap}"/>
+                    </StackPanel>
+
                     <StackPanel x:Name="EpicNowSection">
                         <TextBlock Style="{StaticResource SectionTitle}" Text="แจกฟรีตอนนี้  ·  Epic Games"/>
                         <ItemsControl x:Name="EpicNowList" ItemTemplate="{StaticResource TallDeal}"

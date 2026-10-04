@@ -15,4 +15,7 @@ public class AppSettings
     public BoostSettings? Boost { get; set; }
 
     public GeneralSettings General { get; set; } = new();
+
+    /// <summary>Steam appid ของเกมที่กดเฝ้าราคาไว้ใน PC Hub (นอกเหนือจาก Wishlist)</summary>
+    public List<int> WatchedGames { get; set; } = [];
 }
