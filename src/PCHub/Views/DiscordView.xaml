@@ -1,0 +1,41 @@
+<UserControl x:Class="PCHub.Views.DiscordView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,12,0">
+            <TextBlock Style="{StaticResource PageTitle}" Text="Discord"/>
+            <TextBlock Style="{StaticResource PageSubtitle}"
+                       Text="หาเซิร์ฟเวอร์ที่ไม่ได้ใช้แล้ว แบบปลอดภัย ไม่ใช้ token และไม่ผิดกฎของ Discord"/>
+
+            <Border Style="{StaticResource Card}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="22" Margin="0,0,16,0"
+                            VerticalAlignment="Top" Background="{StaticResource AccentSoft}">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8BD;" FontSize="18"
+                                   Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionTitle}" Text="กำลังสร้างหน้านี้"/>
+                        <TextBlock Style="{StaticResource BodyText}"
+                                   Text="• อ่านไฟล์ข้อมูลที่ขอจาก Discord&#10;• จัดอันดับเซิร์ฟที่ไม่ได้คุยมานาน&#10;• กดปุ่มเดียวเปิดเซิร์ฟนั้นใน Discord แล้วกดออกเองได้เลย"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="22" Margin="0,0,16,0"
+                            VerticalAlignment="Top" Background="{StaticResource HoverBg}">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE896;" FontSize="18"
+                                   Foreground="{StaticResource Warning}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionTitle}" Text="เตรียมไว้ก่อน: ขอไฟล์ข้อมูลจาก Discord"/>
+                        <TextBlock Style="{StaticResource BodyText}"
+                                   Text="Discord ใช้เวลาหลายวันกว่าจะส่งไฟล์มาทางอีเมล ขอไว้ตั้งแต่ตอนนี้เลย&#10;1. เปิด Discord → User Settings (รูปเฟือง)&#10;2. ไปที่ Data &amp; Privacy → Request all of my data&#10;3. ติ๊ก Messages กับ Servers แล้วกดส่งคำขอ"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

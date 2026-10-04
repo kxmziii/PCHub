@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PCHub/PCHub.csproj" />
+  </Folder>
+</Solution>

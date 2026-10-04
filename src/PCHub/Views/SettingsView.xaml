@@ -1,0 +1,26 @@
+<UserControl x:Class="PCHub.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,12,0">
+            <TextBlock Style="{StaticResource PageTitle}" Text="ตั้งค่า"/>
+            <TextBlock Style="{StaticResource PageSubtitle}"
+                       Text="ปรับการทำงานของ PC Hub"/>
+
+            <Border Style="{StaticResource Card}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="22" Margin="0,0,16,0"
+                            VerticalAlignment="Top" Background="{StaticResource AccentSoft}">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE713;" FontSize="18"
+                                   Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionTitle}" Text="กำลังสร้างหน้านี้"/>
+                        <TextBlock Style="{StaticResource BodyText}"
+                                   Text="• เปิด PC Hub พร้อม Windows&#10;• ย่อเก็บไว้ที่มุมจอ (ไอคอนข้างนาฬิกา)&#10;• คีย์ลัดสำหรับเปิด PC Hub"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
