@@ -23,10 +23,11 @@ public record SessionResult(Game Game, PlaySession? Session, int ReopenedApps);
 /// </summary>
 public class GameSessionService : ObservableObject
 {
-    public static GameSessionService Instance { get; } = new();
-
     private static readonly TimeSpan WaitForGameTimeout = TimeSpan.FromMinutes(5); // เผื่อ launcher อัปเดตเกมก่อน
     private static readonly TimeSpan MinimumSession = TimeSpan.FromMinutes(1);
+
+    // ประกาศหลังค่าคงที่ด้านบน (C# ตั้งค่าตัวแปร static ตามลำดับบรรทัด)
+    public static GameSessionService Instance { get; } = new();
 
     private CancellationTokenSource? _stop;
 

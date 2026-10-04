@@ -9,10 +9,12 @@ namespace PCHub.Services;
 /// </summary>
 public sealed class GameWatcher
 {
-    public static GameWatcher Instance { get; } = new();
-
+    // ต้องประกาศก่อน Instance: C# ตั้งค่าตัวแปร static ตามลำดับบรรทัด
+    // ถ้า Instance มาก่อน ตอนสร้าง timer ค่า Interval จะยังเป็น 0 แล้ว timer จะทำงานรัวไม่หยุด (CPU พุ่ง)
     private static readonly TimeSpan Interval = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan MinimumSession = TimeSpan.FromMinutes(1);
+
+    public static GameWatcher Instance { get; } = new();
 
     private sealed class Tracked(Game game, DateTime start)
     {

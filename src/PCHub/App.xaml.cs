@@ -68,6 +68,7 @@ public partial class App : Application
         }
         window.Show();
         if (args.Contains("--demo-session")) window.ShowDemoSessionCard();
+        if (args.Contains("--background")) window.StartBackgroundWork(); // ทดสอบงานเบื้องหลัง (จับเวลาเกม, ปิง)
 
         Window target = window;
         Task ready = Task.CompletedTask;
