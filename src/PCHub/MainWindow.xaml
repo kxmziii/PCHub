@@ -51,6 +51,22 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- แจ้งว่ามีเวอร์ชันใหม่ (โหลดไว้แล้ว จะติดตั้งตอนปิดโปรแกรม) -->
+                    <Border x:Name="UpdateCard" Style="{StaticResource Card}" Padding="14,12" Margin="0,0,0,12"
+                            BorderBrush="{StaticResource Accent}" Visibility="Collapsed">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE896;" FontSize="13" Margin="0,0,8,0"
+                                           Foreground="{StaticResource Accent}"/>
+                                <TextBlock x:Name="UpdateTitle" FontSize="13.5"/>
+                            </StackPanel>
+                            <TextBlock FontSize="12" Margin="0,4,0,8" TextWrapping="Wrap" Foreground="{StaticResource TextMuted}"
+                                       Text="โหลดไว้แล้ว จะอัปเดตเองตอนปิดโปรแกรม"/>
+                            <Button Style="{StaticResource PrimaryButton}" Padding="12,6" Content="รีสตาร์ทเลย"
+                                    Click="RestartForUpdate_Click"/>
+                        </StackPanel>
+                    </Border>
+
                     <!-- ป้ายปิงไปเซิร์ฟสิงคโปร์ อัปเดตทุกนาที -->
                     <Button x:Name="PingBadge" Style="{StaticResource SubtleButton}" Margin="0,0,0,4"
                             ToolTip="ปิงไปเซิร์ฟเวอร์สิงคโปร์ (อัปเดตทุกนาที) กดเพื่อดูละเอียด" Click="PingBadge_Click">

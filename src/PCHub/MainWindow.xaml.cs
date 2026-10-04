@@ -37,7 +37,37 @@ public partial class MainWindow : Window
         {
             await UpdatePingAsync();
             _pingTimer.Start();
+            await PrepareUpdateAsync();
         };
+    }
+
+    // ===== อัปเดตอัตโนมัติ =====
+
+    private Velopack.UpdateInfo? _pendingUpdate;
+
+    /// <summary>เช็คอัปเดตตอนเปิดโปรแกรม ถ้ามีจะโหลดเงียบๆ แล้วโชว์การ์ดแจ้งที่เมนูซ้าย</summary>
+    private async Task PrepareUpdateAsync()
+    {
+        if (!UpdateService.IsAvailable) return;
+        await Task.Delay(TimeSpan.FromSeconds(5)); // รอให้โปรแกรมเปิดเสร็จก่อน ไม่แย่งเน็ต/เครื่องตอนเริ่ม
+        _pendingUpdate = await UpdateService.PrepareAsync();
+        if (_pendingUpdate == null) return;
+
+        UpdateTitle.Text = $"มีเวอร์ชันใหม่ {_pendingUpdate.TargetFullRelease.Version}";
+        UpdateCard.Visibility = Visibility.Visible;
+    }
+
+    private void RestartForUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_pendingUpdate == null) return;
+        if (Session.IsActive)
+        {
+            ConfirmDialog.Show(this, "รอเลิกเล่นก่อนนะ",
+                $"กำลังเล่น {Session.CurrentGame?.Name} อยู่ จบเซสชันก่อนแล้วค่อยรีสตาร์ท (หรือปล่อยไว้ จะอัปเดตเองตอนปิดโปรแกรม)",
+                "โอเค");
+            return;
+        }
+        UpdateService.RestartNow(_pendingUpdate);
     }
 
     // ===== ป้ายปิงที่เมนูซ้าย =====

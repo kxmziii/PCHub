@@ -31,10 +31,33 @@ public static class UpdateService
         }
     }
 
+    /// <summary>
+    /// ใช้ตอนเปิดโปรแกรม: เช็ค → ถ้ามีเวอร์ชันใหม่ โหลดเงียบๆ เบื้องหลัง แล้วตั้งให้ติดตั้งตอนปิดโปรแกรม
+    /// คืนค่าเวอร์ชันใหม่ที่โหลดไว้แล้ว (null = ไม่มีอัปเดต)
+    /// </summary>
+    public static async Task<UpdateInfo?> PrepareAsync()
+    {
+        var update = await CheckAsync();
+        if (update == null) return null;
+        try
+        {
+            await Manager.DownloadUpdatesAsync(update);
+        }
+        catch (Exception ex) when (ex is System.Net.Http.HttpRequestException or System.IO.IOException)
+        {
+            return null; // โหลดไม่สำเร็จ ไว้ลองใหม่ตอนเปิดครั้งหน้า
+        }
+        Manager.WaitExitThenApplyUpdates(update.TargetFullRelease, silent: true, restart: false);
+        return update;
+    }
+
+    /// <summary>ติดตั้งอัปเดตที่โหลดไว้แล้วรีสตาร์ทเป็นเวอร์ชันใหม่ทันที</summary>
+    public static void RestartNow(UpdateInfo update) => Manager.ApplyUpdatesAndRestart(update.TargetFullRelease);
+
     /// <summary>โหลดอัปเดตแล้วรีสตาร์ทเป็นเวอร์ชันใหม่</summary>
     public static async Task DownloadAndRestartAsync(UpdateInfo update)
     {
         await Manager.DownloadUpdatesAsync(update);
-        Manager.ApplyUpdatesAndRestart(update);
+        Manager.ApplyUpdatesAndRestart(update.TargetFullRelease);
     }
 }
