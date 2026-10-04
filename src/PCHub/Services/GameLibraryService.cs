@@ -98,6 +98,7 @@ public static class GameLibraryService
                     name.Contains("Redistributable", StringComparison.OrdinalIgnoreCase)) continue;
 
                 var installDir = VdfValue(text, "installdir");
+                var size = long.TryParse(VdfValue(text, "SizeOnDisk"), out var bytes) && bytes > 0 ? bytes : (long?)null;
                 var cache = Path.Combine(steam, "appcache", "librarycache", id);
                 yield return new Game
                 {
@@ -108,6 +109,7 @@ public static class GameLibraryService
                     CoverPath = FindSteamCover(steam, cache, id),
                     IconPath = FindSteamIcon(cache),
                     InstallFolder = installDir == null ? null : Path.Combine(steamApps, "common", installDir),
+                    SizeOnDisk = size,
                 };
             }
         }
@@ -147,7 +149,8 @@ public static class GameLibraryService
 
     private record EpicManifest(
         string? DisplayName, string? AppName, string? CatalogNamespace, string? CatalogItemId,
-        string? InstallLocation, string? LaunchExecutable, bool bIsIncompleteInstall, List<string>? AppCategories);
+        string? InstallLocation, string? LaunchExecutable, bool bIsIncompleteInstall, List<string>? AppCategories,
+        long InstallSize);
 
     private static IEnumerable<Game> EpicGames()
     {
@@ -180,6 +183,7 @@ public static class GameLibraryService
                 LaunchTarget = $"com.epicgames.launcher://apps/{m.CatalogNamespace}%3A{m.CatalogItemId}%3A{m.AppName}?action=launch&silent=true",
                 IconPath = exe != null && File.Exists(exe) ? exe : null,
                 InstallFolder = m.InstallLocation,
+                SizeOnDisk = m.InstallSize > 0 ? m.InstallSize : null,
             };
         }
     }

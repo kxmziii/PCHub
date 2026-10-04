@@ -45,6 +45,11 @@ public partial class App : Application
                 boost.Show();
                 target = boost;
             }
+            else if (page == "storage")
+            {
+                window.ShowPage("cleaner");
+                ((Views.CleanerView)window.CurrentPage!).ShowTab("storage");
+            }
             else if (page != null)
             {
                 window.ShowPage(page);

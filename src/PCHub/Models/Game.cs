@@ -32,6 +32,9 @@ public class Game : ObservableObject
     /// <summary>โฟลเดอร์ที่ลงเกมไว้ ใช้ดูว่าเกมเปิดอยู่ไหม (โปรเซสที่ .exe อยู่ในโฟลเดอร์นี้)</summary>
     public string? InstallFolder { get; init; }
 
+    /// <summary>ขนาดที่ launcher บอกไว้ (null = launcher ไม่ได้บอก ต้องนับเอง)</summary>
+    public long? SizeOnDisk { get; init; }
+
     private TimeSpan _playTime;
     /// <summary>เวลาเล่นรวม (จาก PC Hub และ Steam)</summary>
     public TimeSpan PlayTime

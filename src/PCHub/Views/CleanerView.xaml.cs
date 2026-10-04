@@ -22,6 +22,22 @@ public partial class CleanerView : UserControl
         SummaryDetail.Text = "สแกนเฉยๆ ยังไม่ลบอะไรนะ จะลบก็ต่อเมื่อกดปุ่มลบแล้วยืนยันเองเท่านั้น";
     }
 
+    /// <summary>สลับแท็บ: "junk" หรือ "storage"</summary>
+    public void ShowTab(string tab)
+    {
+        if (tab == "storage") TabStorage.IsChecked = true;
+        else TabJunk.IsChecked = true;
+    }
+
+    private void Tab_Checked(object sender, RoutedEventArgs e)
+    {
+        // Checked ของแท็บแรกทำงานตั้งแต่ตอนสร้างหน้า ก่อนที่ panel จะถูกสร้าง
+        if (JunkPanel == null || StoragePanel == null) return;
+        var storage = TabStorage.IsChecked == true;
+        JunkPanel.Visibility = storage ? Visibility.Collapsed : Visibility.Visible;
+        StoragePanel.Visibility = storage ? Visibility.Visible : Visibility.Collapsed;
+    }
+
     private async void Scan_Click(object sender, RoutedEventArgs e) => await ScanAsync();
 
     public async Task ScanAsync()
