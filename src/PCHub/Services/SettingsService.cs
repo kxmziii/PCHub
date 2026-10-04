@@ -22,6 +22,9 @@ public static class SettingsService
 
     public static AppSettings Current { get; } = Load();
 
+    /// <summary>ค่า Game Boost (Load ใส่ค่าเริ่มต้นให้เสมอ ไม่เป็น null)</summary>
+    public static BoostSettings Boost => Current.Boost!;
+
     public static void Save()
     {
         Directory.CreateDirectory(FolderPath);
@@ -30,11 +33,12 @@ public static class SettingsService
 
     private static AppSettings Load()
     {
+        AppSettings? settings = null;
         if (File.Exists(FilePath))
         {
             try
             {
-                return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath), JsonOptions) ?? new();
+                settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath), JsonOptions);
             }
             catch (JsonException)
             {
@@ -43,11 +47,29 @@ public static class SettingsService
             }
         }
 
-        var settings = new AppSettings { Modes = CreateDefaultModes() };
-        Directory.CreateDirectory(FolderPath);
-        File.WriteAllText(FilePath, JsonSerializer.Serialize(settings, JsonOptions));
+        var changed = settings == null;
+        settings ??= new AppSettings { Modes = CreateDefaultModes() };
+
+        // ไฟล์จากเวอร์ชันก่อนยังไม่มีค่า Game Boost
+        if (settings.Boost == null)
+        {
+            settings.Boost = CreateDefaultBoost();
+            changed = true;
+        }
+
+        if (changed)
+        {
+            Directory.CreateDirectory(FolderPath);
+            File.WriteAllText(FilePath, JsonSerializer.Serialize(settings, JsonOptions));
+        }
         return settings;
     }
+
+    /// <summary>Game Boost ตั้งต้น: เปิด Discord พร้อมเกม (ถ้ามี) ยังไม่ปิดแอพไหนจนกว่าผู้ใช้จะเลือกเอง</summary>
+    private static BoostSettings CreateDefaultBoost() => new()
+    {
+        CompanionApps = InstalledAppsService.Find("Discord") is { } discord ? [discord] : [],
+    };
 
     /// <summary>โหมดตั้งต้นตอนเปิดครั้งแรก ใส่เฉพาะแอพที่มีในเครื่อง</summary>
     private static List<LaunchMode> CreateDefaultModes()

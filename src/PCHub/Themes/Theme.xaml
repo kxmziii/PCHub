@@ -332,6 +332,37 @@
         </Setter>
     </Style>
 
+    <!-- ===== สวิตช์เปิด/ปิด (ใช้กับ CheckBox: Style="{StaticResource Switch}") ===== -->
+    <Style x:Key="Switch" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <DockPanel Background="Transparent">
+                        <Border x:Name="Track" DockPanel.Dock="Right" Width="40" Height="22" CornerRadius="11"
+                                Margin="16,0,0,0" VerticalAlignment="Center" Background="{StaticResource PressedBg}">
+                            <Ellipse x:Name="Knob" Width="16" Height="16" Margin="3,0" HorizontalAlignment="Left"
+                                     Fill="{StaticResource TextSecondary}"/>
+                        </Border>
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{StaticResource Accent}"/>
+                            <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter TargetName="Knob" Property="Fill" Value="{StaticResource AccentText}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ===== แถบความคืบหน้า (บาง ขอบมน) ===== -->
     <Style TargetType="ProgressBar">
         <Setter Property="Height" Value="6"/>
@@ -392,14 +423,14 @@
     <Style x:Key="FilterChip" TargetType="RadioButton">
         <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
         <Setter Property="FontSize" Value="13.5"/>
-        <Setter Property="Margin" Value="0,0,8,8"/>
+        <Setter Property="Margin" Value="0,0,6,8"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
                     <Border x:Name="Bd" Background="{StaticResource HoverBg}" BorderBrush="{StaticResource CardBorder}"
-                            BorderThickness="1" CornerRadius="16" Padding="14,6">
+                            BorderThickness="1" CornerRadius="16" Padding="12,6">
                         <ContentPresenter/>
                     </Border>
                     <ControlTemplate.Triggers>

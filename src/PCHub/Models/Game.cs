@@ -1,3 +1,5 @@
+using PCHub.Helpers;
+
 namespace PCHub.Models;
 
 public enum GameSource
@@ -10,7 +12,7 @@ public enum GameSource
 }
 
 /// <summary>เกม 1 เกมในคลังเกม</summary>
-public class Game
+public class Game : ObservableObject
 {
     /// <summary>ไม่ซ้ำกันในคลัง เช่น "steam:578080", "epic:Brill"</summary>
     public required string Id { get; init; }
@@ -27,7 +29,29 @@ public class Game
     /// <summary>ไอคอนเล็ก (exe, lnk หรือรูป) ใช้ตอนไม่มีรูปปก</summary>
     public string? IconPath { get; init; }
 
+    /// <summary>โฟลเดอร์ที่ลงเกมไว้ ใช้ดูว่าเกมเปิดอยู่ไหม (โปรเซสที่ .exe อยู่ในโฟลเดอร์นี้)</summary>
     public string? InstallFolder { get; init; }
+
+    private TimeSpan _playTime;
+    /// <summary>เวลาเล่นรวม (จาก PC Hub และ Steam)</summary>
+    public TimeSpan PlayTime
+    {
+        get => _playTime;
+        set
+        {
+            if (SetField(ref _playTime, value)) OnPropertyChanged(nameof(Detail));
+        }
+    }
+
+    private DateTime? _lastPlayed;
+    public DateTime? LastPlayed
+    {
+        get => _lastPlayed;
+        set
+        {
+            if (SetField(ref _lastPlayed, value)) OnPropertyChanged(nameof(Detail));
+        }
+    }
 
     public string SourceName => Source switch
     {
@@ -37,6 +61,11 @@ public class Game
         GameSource.Custom => "เพิ่มเอง",
         _ => "อื่นๆ",
     };
+
+    /// <summary>บรรทัดใต้ชื่อเกม เช่น "Steam · 38 ชม."</summary>
+    public string Detail => PlayTime > TimeSpan.Zero
+        ? $"{SourceName}  ·  {TimeFormatter.Short(PlayTime)}"
+        : SourceName;
 
     public AppEntry ToAppEntry() => new()
     {

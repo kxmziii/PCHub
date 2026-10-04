@@ -1,4 +1,5 @@
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
@@ -44,11 +45,12 @@ public static class GameLibraryService
         games.AddRange(CustomGames());
 
         // ชื่อซ้ำ (เช่น VALORANT ทั้งจาก Riot และ Start Menu) เก็บอันแรก
-        return games
+        var result = games
             .GroupBy(g => g.Name, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
-            .OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
+        PlayTimeService.ApplyTo(result);
+        return result;
     }
 
     /// <summary>launcher ไหนข้อมูลเสียหรืออ่านไม่ได้ ก็ข้ามไป ไม่ให้ทั้งคลังพัง</summary>
@@ -232,6 +234,7 @@ public static class GameLibraryService
                 Source = GameSource.Other,
                 LaunchTarget = app.Path,
                 IconPath = app.Path,
+                InstallFolder = TargetFolder(app.Path),
             });
 
     private static IEnumerable<Game> CustomGames() =>
@@ -243,6 +246,31 @@ public static class GameLibraryService
             LaunchTarget = app.Path,
             LaunchArguments = app.Arguments,
             IconPath = app.IconSource,
-            InstallFolder = app.Path.Contains("://") ? null : Path.GetDirectoryName(app.Path),
+            InstallFolder = TargetFolder(app.Path),
         });
+
+    /// <summary>โฟลเดอร์ของโปรแกรมที่ไฟล์นี้ชี้ไป (.lnk จะดูว่า shortcut ชี้ไปที่ไหน)</summary>
+    private static string? TargetFolder(string path)
+    {
+        if (path.Contains("://", StringComparison.Ordinal)) return null;
+        if (!path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)) return Path.GetDirectoryName(path);
+
+        var shellType = Type.GetTypeFromProgID("WScript.Shell");
+        if (shellType == null) return null;
+        dynamic? shell = null;
+        try
+        {
+            shell = Activator.CreateInstance(shellType);
+            string target = shell!.CreateShortcut(path).TargetPath;
+            return string.IsNullOrEmpty(target) ? null : Path.GetDirectoryName(target);
+        }
+        catch (COMException)
+        {
+            return null;
+        }
+        finally
+        {
+            if (shell != null) Marshal.FinalReleaseComObject(shell);
+        }
+    }
 }

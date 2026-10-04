@@ -32,6 +32,25 @@
 
                 <!-- ล่างสุด: ตั้งค่า + เวอร์ชัน -->
                 <StackPanel DockPanel.Dock="Bottom">
+                    <!-- การ์ดเซสชันเล่นเกม (โผล่เมื่อกดเล่นเกมจากคลังเกม) -->
+                    <Border x:Name="SessionCard" Style="{StaticResource Card}" Padding="14,12" Margin="0,0,0,12"
+                            Visibility="Collapsed">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="SessionDot" Width="8" Height="8" Margin="0,0,8,0"
+                                         VerticalAlignment="Center" Fill="{StaticResource Success}"/>
+                                <TextBlock x:Name="SessionStatus" FontSize="12" Foreground="{StaticResource TextSecondary}"/>
+                            </StackPanel>
+                            <TextBlock x:Name="SessionGame" FontSize="14" Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock x:Name="SessionTime" FontFamily="{StaticResource HeadingFont}" FontSize="22"
+                                       Margin="0,0,0,4"/>
+                            <TextBlock x:Name="SessionNote" FontSize="12" Foreground="{StaticResource TextMuted}"
+                                       TextWrapping="Wrap" Margin="0,0,0,8" Visibility="Collapsed"/>
+                            <Button x:Name="SessionButton" Style="{StaticResource SecondaryButton}" Padding="12,6"
+                                    Click="SessionButton_Click"/>
+                        </StackPanel>
+                    </Border>
+
                     <views:NavButton x:Name="NavSettings" Tag="settings" Icon="&#xE713;" Content="ตั้งค่า"
                                      Checked="Nav_Checked"/>
                     <TextBlock x:Name="VersionText" Margin="14,10,0,0" FontSize="12"

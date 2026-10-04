@@ -1,0 +1,112 @@
+<Window x:Class="PCHub.Views.BoostSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:PCHub.Views"
+        Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner"
+        Title="Game Boost" Width="860" Height="700">
+    <Window.Resources>
+        <!-- แถวในลิสต์: ไอคอน ชื่อ รายละเอียด (ทั้งแถวกดติ๊กได้) -->
+        <DataTemplate x:Key="ToggleRow" DataType="{x:Type views:ToggleItem}">
+            <CheckBox IsChecked="{Binding IsChecked}" Padding="10,7" Margin="0,0,0,2">
+                <DockPanel>
+                    <Image DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,10,0"
+                           Source="{Binding IconSource, Converter={StaticResource PathToIcon}}"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Detail}" FontSize="12.5" Margin="8,0,0,0"
+                               VerticalAlignment="Center" Foreground="{StaticResource TextMuted}"/>
+                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                </DockPanel>
+            </CheckBox>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="28,22,28,22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock Style="{StaticResource PageTitle}" FontSize="22" Text="Game Boost"/>
+            <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,0,0,16"
+                       Text="ตอนกดเล่นเกมจากคลังเกม PC Hub จะเตรียมเครื่องให้ เลิกเล่นแล้วคืนค่าให้เหมือนเดิม"/>
+        </StackPanel>
+
+        <!-- สวิตช์ -->
+        <Border Grid.Row="1" Style="{StaticResource Card}" Padding="20,14">
+            <StackPanel>
+                <CheckBox x:Name="EnabledSwitch" Style="{StaticResource Switch}" FontSize="15">
+                    <StackPanel>
+                        <TextBlock Text="เปิด Game Boost ตอนกดเล่น"/>
+                        <TextBlock Text="ปิดไว้ = เปิดเกมอย่างเดียว แต่ยังจับเวลาเล่นให้" FontSize="12.5"
+                                   Foreground="{StaticResource TextMuted}"/>
+                    </StackPanel>
+                </CheckBox>
+                <StackPanel Margin="0,10,0,0" IsEnabled="{Binding IsChecked, ElementName=EnabledSwitch}">
+                    <CheckBox x:Name="PowerSwitch" Style="{StaticResource Switch}" Margin="0,6"
+                              Content="สลับเป็นโหมดพลังงานแรงสุดระหว่างเล่น (เลิกเล่นแล้วเปลี่ยนกลับให้)"/>
+                    <CheckBox x:Name="RestoreSwitch" Style="{StaticResource Switch}" Margin="0,6"
+                              Content="เลิกเล่นแล้วเปิดแอพที่ปิดไปกลับมาให้"/>
+                    <CheckBox x:Name="MinimizeSwitch" Style="{StaticResource Switch}" Margin="0,6"
+                              Content="ย่อ PC Hub ตอนเกมเปิด แล้วเด้งกลับมาสรุปผลตอนเลิกเล่น"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ซ้าย: ปิดตอนเล่น / ขวา: เปิดพร้อมเกม -->
+        <Grid Grid.Row="2" IsEnabled="{Binding IsChecked, ElementName=EnabledSwitch}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource Card}" Padding="14" Margin="0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Margin="6,0,0,10">
+                        <TextBlock Style="{StaticResource SectionTitle}" FontSize="15" Margin="0" Text="ปิดแอพพวกนี้ตอนเล่น"/>
+                        <TextBlock FontSize="12.5" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"
+                                   Text="เรียงตามแรมที่ใช้ แอพที่ถามให้เซฟงานจะไม่ถูกบังคับปิด"/>
+                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="CloseList" ItemTemplate="{StaticResource ToggleRow}"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource Card}" Padding="14" Margin="0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Margin="6,0,0,10">
+                        <TextBlock Style="{StaticResource SectionTitle}" FontSize="15" Margin="0" Text="เปิดพวกนี้พร้อมเกม"/>
+                        <TextBlock FontSize="12.5" Foreground="{StaticResource TextMuted}"
+                                   Text="เช่น Discord (ถ้าเปิดอยู่แล้วจะไม่เปิดซ้ำ)"/>
+                    </StackPanel>
+                    <TextBox x:Name="SearchBox" DockPanel.Dock="Top" Tag="ค้นหาแอพ..." Margin="0,0,0,10"
+                             TextChanged="SearchBox_TextChanged"/>
+                    <ListBox x:Name="CompanionList" ItemTemplate="{StaticResource ToggleRow}"
+                             IsSynchronizedWithCurrentItem="False" VirtualizingPanel.IsVirtualizing="True">
+                        <ListBox.ItemContainerStyle>
+                            <!-- แถวเป็น CheckBox อยู่แล้ว ไม่ต้องมีพื้นหลังตอนเลือก -->
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Style="{StaticResource SecondaryButton}" Content="ยกเลิก" MinWidth="100" Margin="0,0,10,0" IsCancel="True"/>
+            <Button Style="{StaticResource PrimaryButton}" Content="บันทึก" MinWidth="100" Click="Save_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

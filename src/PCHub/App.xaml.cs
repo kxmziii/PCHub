@@ -19,13 +19,14 @@ public partial class App : Application
         window.Show();
 
 #if DEBUG
-        // ใช้ตอนพัฒนา: PCHub.exe --snapshot out.png [--page cleaner | mode-editor] [--scan] [--delay ms] [--size 1400x900]
+        // ใช้ตอนพัฒนา: PCHub.exe --snapshot out.png [--page cleaner | mode-editor | boost] [--scan] [--delay ms] [--size 1400x900] [--demo-session]
         // เปิดหน้าที่ต้องการ แคปหน้าจอเป็นรูป แล้วปิดโปรแกรม (--scan = สั่งสแกนขยะก่อนแคป, แค่สแกนไม่ลบ)
         var snapshotPath = GetArg(e.Args, "--snapshot");
         if (snapshotPath != null)
         {
             Window target = window;
             Task ready = Task.CompletedTask;
+            if (e.Args.Contains("--demo-session")) window.ShowDemoSessionCard();
             if (GetArg(e.Args, "--size")?.Split('x') is [var w, var h])
             {
                 window.Width = double.Parse(w);
@@ -37,6 +38,12 @@ public partial class App : Application
                 var editor = new Views.ModeEditorWindow(Services.SettingsService.Current.Modes[0], isNew: false) { Owner = window };
                 editor.Show();
                 target = editor;
+            }
+            else if (page == "boost")
+            {
+                var boost = new Views.BoostSettingsWindow { Owner = window };
+                boost.Show();
+                target = boost;
             }
             else if (page != null)
             {

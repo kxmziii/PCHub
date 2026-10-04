@@ -13,16 +13,26 @@ namespace PCHub.Views;
 
 public partial class GamesView : UserControl
 {
+    private enum SortMode { Recent, Name, PlayTime }
+
     private List<Game> _games = [];
     private ListCollectionView? _view;
     private string _filter = "all"; // all, Steam, Epic, Riot, Other, hidden
+    private SortMode _sort = SortMode.Recent;
 
     public GamesView()
     {
         InitializeComponent();
+        UpdateSortText();
         Loaded += async (_, _) =>
         {
             if (_view == null) await LoadAsync();
+        };
+        GameSessionService.Instance.SessionEnded += async _ =>
+        {
+            // อัปเดตเวลาเล่นบนการ์ดหลังเลิกเล่น
+            await Task.Run(() => PlayTimeService.ApplyTo(_games));
+            RefreshView();
         };
     }
 
@@ -36,11 +46,54 @@ public partial class GamesView : UserControl
         EmptyState.Visibility = Visibility.Collapsed;
 
         _games = await Task.Run(GameLibraryService.Scan);
-        _view = new ListCollectionView(_games) { Filter = Matches };
+        _view = new ListCollectionView(_games) { Filter = Matches, CustomSort = new GameComparer(_sort) };
         GameList.ItemsSource = _view;
 
         LoadingText.Visibility = Visibility.Collapsed;
         RefreshView();
+    }
+
+    // ===== เรียงลำดับ =====
+
+    private void Sort_Click(object sender, RoutedEventArgs e)
+    {
+        _sort = _sort switch
+        {
+            SortMode.Recent => SortMode.Name,
+            SortMode.Name => SortMode.PlayTime,
+            _ => SortMode.Recent,
+        };
+        UpdateSortText();
+        if (_view != null) _view.CustomSort = new GameComparer(_sort);
+    }
+
+    private void UpdateSortText() => SortText.Text = _sort switch
+    {
+        SortMode.Recent => "เล่นล่าสุด",
+        SortMode.Name => "ชื่อ A-Z",
+        _ => "เล่นนานสุด",
+    };
+
+    private sealed class GameComparer(SortMode mode) : System.Collections.IComparer
+    {
+        public int Compare(object? x, object? y)
+        {
+            var a = (Game)x!;
+            var b = (Game)y!;
+            var result = mode switch
+            {
+                SortMode.Recent => Nullable.Compare(b.LastPlayed, a.LastPlayed), // ใหม่สุดก่อน เกมที่ไม่เคยเล่นไว้ท้าย
+                SortMode.PlayTime => b.PlayTime.CompareTo(a.PlayTime),
+                _ => 0,
+            };
+            return result != 0 ? result : string.Compare(a.Name, b.Name, StringComparison.CurrentCultureIgnoreCase);
+        }
+    }
+
+    private void Boost_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new BoostSettingsWindow { Owner = Window.GetWindow(this) };
+        if (window.ShowDialog() == true) Toast.Show("บันทึกการตั้งค่า Game Boost แล้ว");
     }
 
     private bool Matches(object item)
@@ -110,12 +163,25 @@ public partial class GamesView : UserControl
 
     private void Play_Click(object sender, RoutedEventArgs e) => Play((Game)((FrameworkElement)sender).DataContext);
 
-    private void Play(Game game)
+    private async void Play(Game game)
     {
-        if (AppLauncher.Launch(game.ToAppEntry()))
-            Toast.Show($"กำลังเปิด {game.Name}...");
-        else
-            Toast.Show($"เปิด {game.Name} ไม่ได้ (เกมอาจถูกลบหรือย้ายไปแล้ว ลองกดหาเกมใหม่)", isError: true);
+        var failText = $"เปิด {game.Name} ไม่ได้ (เกมอาจถูกลบหรือย้ายไปแล้ว ลองกดหาเกมใหม่)";
+        var session = GameSessionService.Instance;
+
+        if (session.IsActive)
+        {
+            // กำลังเล่นเกมอื่นอยู่: เปิดเกมเฉยๆ ไม่เริ่มเซสชันซ้อน
+            if (AppLauncher.Launch(game.ToAppEntry()))
+                Toast.Show($"กำลังเปิด {game.Name}... (ไม่จับเวลา เพราะกำลังเล่น {session.CurrentGame?.Name} อยู่)");
+            else
+                Toast.Show(failText, isError: true);
+            return;
+        }
+
+        Toast.Show(SettingsService.Boost.Enabled
+            ? $"กำลังเตรียมเครื่องและเปิด {game.Name}..."
+            : $"กำลังเปิด {game.Name}...");
+        if (!await session.PlayAsync(game)) Toast.Show(failText, isError: true);
     }
 
     private void Card_MouseRightButtonUp(object sender, MouseButtonEventArgs e)

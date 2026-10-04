@@ -10,4 +10,7 @@ public class AppSettings
 
     /// <summary>Id ของเกมที่กดซ่อนไว้ (เช่น "steam:431960")</summary>
     public List<string> HiddenGames { get; set; } = [];
+
+    /// <summary>null = ยังไม่เคยตั้งค่า (SettingsService จะใส่ค่าเริ่มต้นให้)</summary>
+    public BoostSettings? Boost { get; set; }
 }

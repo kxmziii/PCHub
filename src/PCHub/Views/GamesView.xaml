@@ -18,6 +18,14 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,4,0,0">
                 <Button Style="{StaticResource IconButton}" Width="38" Height="38" Margin="0,0,8,0"
                         Content="&#xE72C;" ToolTip="หาเกมใหม่อีกรอบ" Click="Refresh_Click"/>
+                <Button Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Click="Boost_Click"
+                        ToolTip="ตั้งค่าว่ากดเล่นแล้วจะให้เตรียมเครื่องยังไง">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE945;" FontSize="13" Margin="0,0,8,0"
+                                   Foreground="{StaticResource Accent}"/>
+                        <TextBlock Text="Game Boost"/>
+                    </StackPanel>
+                </Button>
                 <Button Style="{StaticResource PrimaryButton}" Click="AddGame_Click">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="12" Margin="0,0,8,0"/>
@@ -29,8 +37,15 @@
 
         <!-- ค้นหา + กรองตาม launcher -->
         <DockPanel DockPanel.Dock="Top" Margin="0,0,12,10">
-            <TextBox x:Name="SearchBox" DockPanel.Dock="Right" Width="220" Tag="ค้นหาเกม..."
+            <TextBox x:Name="SearchBox" DockPanel.Dock="Right" Width="170" Tag="ค้นหาเกม..."
                      VerticalAlignment="Top" TextChanged="SearchBox_TextChanged"/>
+            <Button DockPanel.Dock="Right" Style="{StaticResource SecondaryButton}" VerticalAlignment="Top"
+                    Padding="12,7" Margin="0,0,10,0" ToolTip="กดเพื่อเปลี่ยนการเรียง" Click="Sort_Click">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8CB;" FontSize="13" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="SortText"/>
+                </StackPanel>
+            </Button>
             <WrapPanel x:Name="ChipPanel" Margin="0,0,16,0">
                 <RadioButton x:Name="ChipAll" Style="{StaticResource FilterChip}" Tag="all" IsChecked="True" Checked="Chip_Checked"/>
                 <RadioButton x:Name="ChipSteam" Style="{StaticResource FilterChip}" Tag="Steam" Checked="Chip_Checked"/>
@@ -105,7 +120,7 @@
                                     </Grid>
                                     <TextBlock Text="{Binding Name}" Margin="2,10,0,0" FontSize="13.5"
                                                TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Text="{Binding SourceName}" Margin="2,2,0,0" FontSize="12"
+                                    <TextBlock Text="{Binding Detail}" Margin="2,2,0,0" FontSize="12"
                                                Foreground="{StaticResource TextMuted}"/>
                                 </StackPanel>
                             </Button>
