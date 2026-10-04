@@ -13,7 +13,8 @@
 - [x] 🚀 โหมด / เปิดแอพ: เปิดหลายแอพพร้อมกันด้วยคลิกเดียว
 - [x] 🧹 ลบขยะ & 💾 พื้นที่เกม: สแกนก่อน ยืนยันก่อนลบ / ดูว่าเกมไหนกินที่และไม่ได้เล่นนาน
 - [x] 📶 เช็คปิง: สิงคโปร์ ฮ่องกง โตเกียว + ป้ายปิงที่เมนูซ้าย
-- [x] 📦 ตัวติดตั้ง (Velopack) — อัปเดตอัตโนมัติจะเปิดใช้หลังเชื่อม GitHub
+- [x] 📦 ตัวติดตั้ง + อัปเดตอัตโนมัติ (Velopack + GitHub Releases)
+- [x] ✨ หน้าโหลดตอนเปิดโปรแกรม
 - [ ] 💬 Discord: วิเคราะห์ไฟล์ข้อมูลจาก Discord หาเซิร์ฟที่ไม่ได้ใช้ (ไม่ใช้ token / ไม่ผิดกฎ)
 - [ ] 🛠️ เครื่องมือเพิ่ม: ดูแอพกินแรม, ตั้งเวลาปิดเครื่อง, จัดไฟล์ Downloads
 - [ ] ⚙️ ตั้งค่า: เปิดพร้อม Windows, ย่อไว้มุมจอ, คีย์ลัด
@@ -53,17 +54,23 @@ PCHub/
 dotnet run --project src/PCHub
 ```
 
-## สร้างตัวติดตั้งไว้แจกเพื่อน
+## ดาวน์โหลด
 
-1. เพิ่มเลข `<Version>` ใน `src/PCHub/PCHub.csproj` (เช่น 0.2.0 → 0.3.0)
-2. รัน:
+โหลด **PCHub-win-Setup.exe** จาก [หน้า Releases](https://github.com/kxmziii/PCHub/releases/latest) แล้วดับเบิลคลิกติดตั้ง
+- ตอนเปิดครั้งแรกอาจเจอหน้าจอ "Windows protected your PC" เพราะยังไม่มีใบรับรอง ให้กด **More info → Run anyway**
+- ลงครั้งเดียว หลังจากนั้น PC Hub จะอัปเดตเองเมื่อมีเวอร์ชันใหม่
+
+## ปล่อยเวอร์ชันใหม่
+
+1. เพิ่มเลข `<Version>` ใน `src/PCHub/PCHub.csproj` (เช่น 0.3.0 → 0.3.1)
+2. commit และ push โค้ดขึ้น GitHub
+3. รัน (สร้างตัวติดตั้ง + อัปโหลดขึ้น GitHub Releases):
 
 ```bash
-powershell -ExecutionPolicy Bypass -File tools/release.ps1
+powershell -ExecutionPolicy Bypass -File tools/release.ps1 -Publish
 ```
 
-3. ส่ง `releases/PCHub-win-Setup.exe` ให้เพื่อน
-   - ตอนเปิดครั้งแรกจะเจอหน้าจอ "Windows protected your PC" เพราะยังไม่มีใบรับรอง ให้กด **More info → Run anyway**
+เครื่องที่ลง PC Hub ไว้จะเจอเวอร์ชันใหม่ตอนเปิดโปรแกรม โหลดเบื้องหลัง แล้วอัปเดตตอนปิดโปรแกรม
 
 ## เปลี่ยนโลโก้
 

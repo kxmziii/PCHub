@@ -10,7 +10,13 @@
     ไฟล์อื่นๆ                 ใช้กับระบบอัปเดต (อัปโหลดขึ้น GitHub Releases ทั้งหมด)
 
   เวอร์ชันอ่านจาก <Version> ใน src\PCHub\PCHub.csproj (ออกเวอร์ชันใหม่ต้องเพิ่มเลขทุกครั้ง)
+
+  ใส่ -Publish เพื่ออัปโหลดขึ้น GitHub Releases ด้วย (ต้อง push โค้ดขึ้น GitHub และล็อกอิน gh ไว้แล้ว)
+  แล้ว PC Hub ในเครื่องเพื่อนจะเจอเวอร์ชันใหม่และอัปเดตเอง
+    powershell -ExecutionPolicy Bypass -File tools\release.ps1 -Publish
 #>
+param([switch]$Publish)
+
 $ErrorActionPreference = 'Stop'
 
 $root = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -33,6 +39,8 @@ if (Test-Path $publish) { Remove-Item $publish -Recurse -Force }
 if ($LASTEXITCODE -ne 0) { throw 'build ไม่ผ่าน' }
 
 # 2) แพ็กเป็นตัวติดตั้งด้วย Velopack
+# เริ่มจากโฟลเดอร์ว่างทุกครั้ง: แต่ละเวอร์ชันบน GitHub มีไฟล์ของตัวเองครบ ไม่ต้องพึ่งเวอร์ชันเก่า
+if (Test-Path $releases) { Remove-Item $releases -Recurse -Force }
 Push-Location $root
 try {
     & $dotnet tool restore | Out-Null
@@ -52,3 +60,20 @@ finally {
 
 Write-Host ""
 Write-Host "เสร็จแล้ว! ตัวติดตั้งอยู่ที่ $releases\PCHub-win-Setup.exe"
+
+# 3) อัปโหลดขึ้น GitHub Releases (ถ้าสั่ง -Publish)
+if ($Publish) {
+    $gh = Get-Command gh -ErrorAction SilentlyContinue
+    $gh = if ($gh) { $gh.Source } else { 'C:\Program Files\GitHub CLI\gh.exe' }
+    $files = Get-ChildItem $releases -File | ForEach-Object { $_.FullName }
+
+    Push-Location $root
+    try {
+        & $gh release create "v$version" @files --title "PC Hub $version" --notes "PC Hub เวอร์ชัน $version  ดาวน์โหลด PCHub-win-Setup.exe แล้วดับเบิลคลิกติดตั้ง (ถ้าลงไว้แล้ว โปรแกรมจะอัปเดตเอง)"
+        if ($LASTEXITCODE -ne 0) { throw 'อัปโหลดขึ้น GitHub ไม่ผ่าน' }
+    }
+    finally {
+        Pop-Location
+    }
+    Write-Host "อัปโหลดขึ้น GitHub แล้ว: เวอร์ชัน $version"
+}

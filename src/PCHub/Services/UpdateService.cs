@@ -10,7 +10,7 @@ public static class UpdateService
     /// ที่อยู่ GitHub ที่ใช้ปล่อยเวอร์ชันใหม่ เช่น "https://github.com/ชื่อบัญชี/PCHub"
     /// ว่างไว้ = ยังไม่เปิดระบบอัปเดต
     /// </summary>
-    public const string GitHubRepo = "";
+    public const string GitHubRepo = "https://github.com/kxmziii/PCHub";
 
     public static bool IsAvailable => GitHubRepo.Length > 0 && Manager.IsInstalled;
 
