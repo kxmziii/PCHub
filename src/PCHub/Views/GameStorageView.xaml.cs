@@ -72,7 +72,8 @@ public partial class GameStorageView : UserControl
         };
     }
 
-    public async Task LoadAsync()
+    /// <summary>โหลดข้อมูลพื้นที่เกม (refresh = หาเกมในเครื่องใหม่ เช่น หลังถอนเกม)</summary>
+    public async Task LoadAsync(bool refresh = false)
     {
         if (_loading) return;
         _loading = true;
@@ -83,7 +84,7 @@ public partial class GameStorageView : UserControl
         SummaryTitle.Text = "กำลังดูว่าเกมไหนกินพื้นที่...";
         SummaryDetail.Text = "";
 
-        var games = await Task.Run(GameLibraryService.Scan);
+        var games = await GameLibraryService.GetAsync(refresh);
         _items = games
             .Where(g => g.InstallFolder != null && Directory.Exists(g.InstallFolder))
             .Select(g => new GameStorageItem { Game = g, Size = g.SizeOnDisk ?? (IsTooBroad(g.InstallFolder!) ? 0 : null) })
@@ -143,7 +144,7 @@ public partial class GameStorageView : UserControl
             .Any(f => string.Equals(f.TrimEnd('\\'), full, StringComparison.OrdinalIgnoreCase));
     }
 
-    private async void Refresh_Click(object sender, RoutedEventArgs e) => await LoadAsync();
+    private async void Refresh_Click(object sender, RoutedEventArgs e) => await LoadAsync(refresh: true);
 
     private void Uninstall_Click(object sender, RoutedEventArgs e)
     {

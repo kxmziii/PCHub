@@ -35,6 +35,18 @@ public static class GameLibraryService
         "Overwatch", "Marvel Rivals", "Delta Force",
     ];
 
+    private static Task<List<Game>>? _cached;
+
+    /// <summary>
+    /// รายชื่อเกม (หาครั้งเดียวตอนหน้าโหลด แล้วทุกหน้าใช้ร่วมกัน)
+    /// refresh = true เพื่อหาใหม่ เช่น หลังลงเกมใหม่หรือเพิ่มเกมเอง
+    /// </summary>
+    public static Task<List<Game>> GetAsync(bool refresh = false)
+    {
+        if (refresh || _cached == null || _cached.IsFaulted) _cached = Task.Run(Scan);
+        return _cached;
+    }
+
     public static List<Game> Scan()
     {
         var games = new List<Game>();

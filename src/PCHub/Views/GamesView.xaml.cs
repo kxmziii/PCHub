@@ -38,14 +38,14 @@ public partial class GamesView : UserControl
 
     private static List<string> Hidden => SettingsService.Current.HiddenGames;
 
-    /// <summary>หาเกมในเครื่องใหม่ทั้งหมด</summary>
-    public async Task LoadAsync()
+    /// <summary>โหลดรายชื่อเกม (refresh = หาในเครื่องใหม่ทั้งหมด)</summary>
+    public async Task LoadAsync(bool refresh = false)
     {
         LoadingText.Visibility = Visibility.Visible;
         GameScroll.Visibility = Visibility.Collapsed;
         EmptyState.Visibility = Visibility.Collapsed;
 
-        _games = await Task.Run(GameLibraryService.Scan);
+        _games = await GameLibraryService.GetAsync(refresh);
         _view = new ListCollectionView(_games) { Filter = Matches, CustomSort = new GameComparer(_sort) };
         GameList.ItemsSource = _view;
 
@@ -157,7 +157,7 @@ public partial class GamesView : UserControl
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e) => RefreshView();
 
-    private async void Refresh_Click(object sender, RoutedEventArgs e) => await LoadAsync();
+    private async void Refresh_Click(object sender, RoutedEventArgs e) => await LoadAsync(refresh: true);
 
     // ===== เล่นเกม / เมนูคลิกขวา =====
 
@@ -270,7 +270,7 @@ public partial class GamesView : UserControl
 
         custom.Add(new AppEntry { Name = name, Path = dialog.FileName });
         SettingsService.Save();
-        await LoadAsync();
+        await LoadAsync(refresh: true);
         Toast.Show($"เพิ่ม {name} เข้าคลังแล้ว");
     }
 
@@ -278,7 +278,7 @@ public partial class GamesView : UserControl
     {
         SettingsService.Current.CustomGames.RemoveAll(g => $"custom:{g.Path}" == game.Id);
         SettingsService.Save();
-        await LoadAsync();
+        await LoadAsync(refresh: true);
         Toast.Show($"เอา {game.Name} ออกจากคลังแล้ว (ตัวเกมในเครื่องไม่ได้ถูกลบ)");
     }
 }

@@ -1,4 +1,5 @@
 using System.Windows;
+using PCHub.Views;
 #if DEBUG
 using System.IO;
 using System.Windows.Media;
@@ -10,82 +11,103 @@ namespace PCHub;
 
 public partial class App : Application
 {
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
-        var window = new MainWindow();
-        MainWindow = window;
 #if DEBUG
-        // ตอนแคปหน้าจอ: เปิดหน้าต่างไว้นอกจอ ไม่แย่งโฟกัส จะได้ไม่กวนคนที่ใช้คอมอยู่
         if (e.Args.Contains("--snapshot"))
         {
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
-            window.Left = -30000;
-            window.Top = 0;
-            window.ShowActivated = false;
-            window.ShowInTaskbar = false;
+            StartForSnapshot(e.Args);
+            return;
         }
 #endif
-        window.Show();
 
-#if DEBUG
-        // ใช้ตอนพัฒนา: PCHub.exe --snapshot out.png [--page cleaner | mode-editor | boost] [--scan] [--delay ms] [--size 1400x900] [--demo-session]
-        // เปิดหน้าที่ต้องการ แคปหน้าจอเป็นรูป แล้วปิดโปรแกรม (--scan = สั่งสแกนขยะก่อนแคป, แค่สแกนไม่ลบ)
-        var snapshotPath = GetArg(e.Args, "--snapshot");
-        if (snapshotPath != null)
-        {
-            Window target = window;
-            Task ready = Task.CompletedTask;
-            if (e.Args.Contains("--demo-session")) window.ShowDemoSessionCard();
-            if (GetArg(e.Args, "--size")?.Split('x') is [var w, var h])
-            {
-                window.Width = double.Parse(w);
-                window.Height = double.Parse(h);
-            }
-            var page = GetArg(e.Args, "--page");
-            if (page == "mode-editor")
-            {
-                var editor = new Views.ModeEditorWindow(Services.SettingsService.Current.Modes[0], isNew: false) { Owner = window, ShowActivated = false };
-                editor.Show();
-                target = editor;
-            }
-            else if (page == "boost")
-            {
-                var boost = new Views.BoostSettingsWindow { Owner = window, ShowActivated = false };
-                boost.Show();
-                target = boost;
-            }
-            else if (page == "storage")
-            {
-                window.ShowPage("cleaner");
-                ((Views.CleanerView)window.CurrentPage!).ShowTab("storage");
-            }
-            else if (page != null)
-            {
-                window.ShowPage(page);
-                if (e.Args.Contains("--scan") && window.CurrentPage is Views.CleanerView cleaner)
-                    ready = cleaner.ScanAsync();
-            }
-            // รอให้แอนิเมชันเฟดหน้าเล่นจบก่อนค่อยแคป
-            var delay = int.TryParse(GetArg(e.Args, "--delay"), out var ms) ? ms : 500;
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(delay) };
-            timer.Tick += async (_, _) =>
-            {
-                timer.Stop();
-                await ready;
-                await Task.Delay(300);
-                SaveSnapshot(target, snapshotPath);
-                if (GetArg(e.Args, "--export-wrapped") is { } exportPath && window.CurrentPage is Views.WrappedView wrapped)
-                    wrapped.ExportForTest(exportPath);
-                Shutdown();
-            };
-            timer.Start();
-        }
-#endif
+        // หน้าโหลด: โหลดการตั้งค่าและหาเกมไว้ล่วงหน้า แล้วค่อยเปิดหน้าต่างหลัก
+        var splash = new SplashWindow();
+        splash.Show();
+        await splash.LoadAsync();
+
+        var window = new MainWindow();
+        MainWindow = window;
+        window.Show();
+        await splash.FadeOutAndCloseAsync();
     }
 
 #if DEBUG
+    // ใช้ตอนพัฒนา: PCHub.exe --snapshot out.png [--page games | cleaner | storage | mode-editor | boost | splash | ...]
+    //   [--scan] [--delay ms] [--size 1400x900] [--demo-session] [--export-wrapped out.png]
+    // เปิดหน้าที่ต้องการไว้นอกจอ (ไม่กวนคนที่ใช้คอมอยู่) แคปเป็นรูป แล้วปิดโปรแกรม
+    private void StartForSnapshot(string[] args)
+    {
+        var snapshotPath = GetArg(args, "--snapshot")!;
+        var page = GetArg(args, "--page");
+
+        var window = new MainWindow();
+        MainWindow = window;
+        HideOffScreen(window);
+        if (GetArg(args, "--size")?.Split('x') is [var w, var h])
+        {
+            window.Width = double.Parse(w);
+            window.Height = double.Parse(h);
+        }
+        window.Show();
+        if (args.Contains("--demo-session")) window.ShowDemoSessionCard();
+
+        Window target = window;
+        Task ready = Task.CompletedTask;
+        switch (page)
+        {
+            case "splash":
+                var splash = new SplashWindow();
+                HideOffScreen(splash);
+                splash.Show();
+                _ = splash.LoadAsync();
+                target = splash;
+                break;
+            case "mode-editor":
+                target = new ModeEditorWindow(Services.SettingsService.Current.Modes[0], isNew: false) { Owner = window, ShowActivated = false };
+                target.Show();
+                break;
+            case "boost":
+                target = new BoostSettingsWindow { Owner = window, ShowActivated = false };
+                target.Show();
+                break;
+            case "storage":
+                window.ShowPage("cleaner");
+                ((CleanerView)window.CurrentPage!).ShowTab("storage");
+                break;
+            case not null:
+                window.ShowPage(page);
+                if (args.Contains("--scan") && window.CurrentPage is CleanerView cleaner) ready = cleaner.ScanAsync();
+                break;
+        }
+
+        // รอให้แอนิเมชันและการโหลดเสร็จก่อนค่อยแคป
+        var delay = int.TryParse(GetArg(args, "--delay"), out var ms) ? ms : 500;
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(delay) };
+        timer.Tick += async (_, _) =>
+        {
+            timer.Stop();
+            await ready;
+            await Task.Delay(300);
+            SaveSnapshot(target, snapshotPath);
+            if (GetArg(args, "--export-wrapped") is { } exportPath && window.CurrentPage is WrappedView wrapped)
+                wrapped.ExportForTest(exportPath);
+            Shutdown();
+        };
+        timer.Start();
+    }
+
+    private static void HideOffScreen(Window window)
+    {
+        window.WindowStartupLocation = WindowStartupLocation.Manual;
+        window.Left = -30000;
+        window.Top = 0;
+        window.ShowActivated = false;
+        window.ShowInTaskbar = false;
+    }
+
     private static string? GetArg(string[] args, string name)
     {
         var i = Array.IndexOf(args, name);

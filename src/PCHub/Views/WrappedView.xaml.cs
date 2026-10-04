@@ -34,7 +34,7 @@ public partial class WrappedView : UserControl
     public async Task LoadAsync()
     {
         _loaded = true;
-        _games = await Task.Run(GameLibraryService.Scan);
+        _games = await GameLibraryService.GetAsync();
         LoadingText.Visibility = Visibility.Collapsed;
 
         // เลือกช่วงที่มีข้อมูลให้ก่อน (ผู้ใช้ใหม่ยังไม่มีข้อมูลของ PC Hub ใช้ของ Steam ไปก่อน)
