@@ -38,6 +38,26 @@ public static class StorageService
         return total;
     }
 
+    /// <summary>
+    /// โฟลเดอร์กว้างๆ ที่ไม่ใช่โฟลเดอร์เกมจริง (เช่น เกมที่เพิ่มเองจากไฟล์บน Desktop)
+    /// ไม่ควรนับขนาด หรือใช้ดูว่าเกมเปิดอยู่ไหม เพราะจะช้าและได้ผลผิด
+    /// </summary>
+    public static bool IsTooBroad(string folder)
+    {
+        var full = Path.GetFullPath(folder).TrimEnd('\\');
+        if (full.Length <= 3) return true; // เช่น C:\
+        Environment.SpecialFolder[] broad =
+        [
+            Environment.SpecialFolder.UserProfile, Environment.SpecialFolder.DesktopDirectory,
+            Environment.SpecialFolder.MyDocuments, Environment.SpecialFolder.ProgramFiles,
+            Environment.SpecialFolder.ProgramFilesX86, Environment.SpecialFolder.Windows,
+            Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolder.ApplicationData,
+        ];
+        var downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        return broad.Select(Environment.GetFolderPath).Append(downloads)
+            .Any(f => string.Equals(f.TrimEnd('\\'), full, StringComparison.OrdinalIgnoreCase));
+    }
+
     /// <summary>ไดรฟ์ในเครื่อง (ฮาร์ดดิสก์/SSD ที่พร้อมใช้)</summary>
     public static List<DriveInfo> FixedDrives() =>
         DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Fixed && d.IsReady).ToList();

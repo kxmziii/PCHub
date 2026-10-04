@@ -25,6 +25,8 @@ public static class SettingsService
     /// <summary>ค่า Game Boost (Load ใส่ค่าเริ่มต้นให้เสมอ ไม่เป็น null)</summary>
     public static BoostSettings Boost => Current.Boost!;
 
+    public static GeneralSettings General => Current.General;
+
     public static void Save()
     {
         Directory.CreateDirectory(FolderPath);

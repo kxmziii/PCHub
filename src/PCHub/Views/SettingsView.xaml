@@ -28,6 +28,37 @@
                     </DockPanel>
                 </Border>
 
+                <!-- ===== การทำงานเบื้องหลัง ===== -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource SectionTitle}" Text="การทำงานเบื้องหลัง"/>
+                        <CheckBox x:Name="TraySwitch" Style="{StaticResource Switch}" Margin="0,6"
+                                  Checked="Switch_Changed" Unchecked="Switch_Changed">
+                            <StackPanel>
+                                <TextBlock Text="กดปิด (X) แล้วย่อไปไว้ที่มุมจอ"/>
+                                <TextBlock FontSize="12.5" Foreground="{StaticResource TextMuted}"
+                                           Text="ยังจับเวลาเล่นและอัปเดตเองได้ คลิกไอคอนข้างนาฬิกาเพื่อเปิดกลับ"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox x:Name="StartupSwitch" Style="{StaticResource Switch}" Margin="0,6"
+                                  Checked="Switch_Changed" Unchecked="Switch_Changed">
+                            <StackPanel>
+                                <TextBlock Text="เปิด PC Hub พร้อม Windows"/>
+                                <TextBlock FontSize="12.5" Foreground="{StaticResource TextMuted}"
+                                           Text="เปิดเงียบๆ ไว้ที่มุมจอ ไม่เด้งหน้าต่างตอนเปิดเครื่อง"/>
+                            </StackPanel>
+                        </CheckBox>
+                        <CheckBox x:Name="TrackSwitch" Style="{StaticResource Switch}" Margin="0,6"
+                                  Checked="Switch_Changed" Unchecked="Switch_Changed">
+                            <StackPanel>
+                                <TextBlock Text="จับเวลาเล่นอัตโนมัติ"/>
+                                <TextBlock FontSize="12.5" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"
+                                           Text="นับเวลาแม้เปิดเกมจาก Steam / Epic โดยตรง (ไม่นับเกมที่ซ่อนไว้) ใช้ทำ Gaming Wrapped"/>
+                            </StackPanel>
+                        </CheckBox>
+                    </StackPanel>
+                </Border>
+
                 <!-- ===== ที่จะมาเพิ่ม ===== -->
                 <Border Style="{StaticResource Card}">
                     <DockPanel>
@@ -39,7 +70,7 @@
                         <StackPanel>
                             <TextBlock Style="{StaticResource SectionTitle}" Text="กำลังจะมา"/>
                             <TextBlock Style="{StaticResource BodyText}"
-                                       Text="• เปิด PC Hub พร้อม Windows&#10;• ย่อเก็บไว้ที่มุมจอ (ไอคอนข้างนาฬิกา)&#10;• คีย์ลัดสำหรับเปิด PC Hub และเปิดโหมด"/>
+                                       Text="• คีย์ลัดสำหรับเปิด PC Hub และเปิดโหมด"/>
                         </StackPanel>
                     </DockPanel>
                 </Border>

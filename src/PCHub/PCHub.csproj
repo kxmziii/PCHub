@@ -10,7 +10,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>PCHub</AssemblyName>
     <Product>PC Hub</Product>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <!-- ไอคอนของไฟล์ .exe (Desktop, Explorer, Start Menu) สร้างด้วย tools\make-icon.ps1 -->
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>

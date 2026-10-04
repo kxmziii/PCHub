@@ -17,11 +17,14 @@ public partial class MainWindow : Window
     private readonly Dictionary<string, UserControl> _pages = new();
     private readonly NavButton[] _navButtons;
     private readonly DispatcherTimer _clock = new() { Interval = TimeSpan.FromSeconds(1) };
+    private readonly TrayIcon? _tray;
     private bool _closeAfterSession;
+    private bool _exitRequested;
 
     private static GameSessionService Session => GameSessionService.Instance;
 
-    public MainWindow()
+    /// <param name="showTrayIcon">false = ไม่ต้องมีไอคอนมุมจอ (ใช้ตอนแคปหน้าจอทดสอบ)</param>
+    public MainWindow(bool showTrayIcon = true)
     {
         InitializeComponent();
         _navButtons = [NavGames, NavDeals, NavWrapped, NavModes, NavCleaner, NavDiscord, NavTools, NavSettings];
@@ -31,14 +34,34 @@ public partial class MainWindow : Window
         _clock.Tick += (_, _) => UpdateSessionClock();
         Session.PropertyChanged += Session_PropertyChanged;
         Session.SessionEnded += Session_Ended;
-
         _pingTimer.Tick += async (_, _) => await UpdatePingAsync();
-        Loaded += async (_, _) =>
-        {
-            await UpdatePingAsync();
-            _pingTimer.Start();
-            await PrepareUpdateAsync();
-        };
+        if (showTrayIcon) _tray = new TrayIcon(ShowFromTray, ExitApp);
+    }
+
+    /// <summary>งานเบื้องหลังที่ทำตลอดแม้หน้าต่างถูกย่อไว้ที่มุมจอ: จับเวลาเกม, ปิง, เช็คอัปเดต</summary>
+    public async void StartBackgroundWork()
+    {
+        GameWatcher.Instance.Start();
+        _pingTimer.Start();
+        await UpdatePingAsync();
+        await PrepareUpdateAsync();
+    }
+
+    // ===== ไอคอนมุมจอ =====
+
+    /// <summary>เปิดหน้าต่างขึ้นมา (จากไอคอนมุมจอ หรือตอนดับเบิลคลิก PC Hub ซ้ำ)</summary>
+    public void ShowFromTray()
+    {
+        Show();
+        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+        Activate();
+    }
+
+    /// <summary>ออกจากโปรแกรมจริงๆ (เมนูคลิกขวาที่ไอคอนมุมจอ)</summary>
+    private void ExitApp()
+    {
+        _exitRequested = true;
+        Close();
     }
 
     // ===== อัปเดตอัตโนมัติ =====
@@ -52,6 +75,13 @@ public partial class MainWindow : Window
         await Task.Delay(TimeSpan.FromSeconds(5)); // รอให้โปรแกรมเปิดเสร็จก่อน ไม่แย่งเน็ต/เครื่องตอนเริ่ม
         _pendingUpdate = await UpdateService.PrepareAsync();
         if (_pendingUpdate == null) return;
+
+        // ย่อไว้มุมจออยู่ (เช่น เปิดพร้อม Windows) และไม่ได้เล่นเกม: อัปเดตเงียบๆ เลย ผู้ใช้ไม่ต้องทำอะไร
+        if (!IsVisible && !Session.IsActive)
+        {
+            UpdateService.RestartNow(_pendingUpdate, ["--tray"]);
+            return;
+        }
 
         UpdateTitle.Text = $"มีเวอร์ชันใหม่ {_pendingUpdate.TargetFullRelease.Version}";
         UpdateCard.Visibility = Visibility.Visible;
@@ -170,8 +200,7 @@ public partial class MainWindow : Window
         }
 
         // เด้งกลับมาให้เห็นสรุปผล
-        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
-        Activate();
+        ShowFromTray();
     }
 
     private void ShowSessionCard(string status, string dotBrush, string buttonText)
@@ -205,19 +234,54 @@ public partial class MainWindow : Window
 
     protected override void OnClosing(CancelEventArgs e)
     {
+        // กด X = ย่อไปอยู่มุมจอ (ยังจับเวลาเล่นเกมต่อ) ถ้าเปิดตัวเลือกนี้ไว้
+        if (!_exitRequested && !_closeAfterSession && SettingsService.General.MinimizeToTray)
+        {
+            e.Cancel = true;
+            Hide();
+
+            // มีอัปเดตโหลดไว้แล้ว: ถือโอกาสอัปเดตตอนนี้เลย ผู้ใช้ไม่เห็นอะไรสะดุด
+            if (_pendingUpdate != null && !Session.IsActive)
+            {
+                UpdateService.RestartNow(_pendingUpdate, ["--tray"]);
+                return;
+            }
+
+            if (!SettingsService.General.TrayHintShown && _tray != null)
+            {
+                _tray.ShowHint("PC Hub ยังทำงานอยู่ที่มุมจอ",
+                    "ยังจับเวลาเล่นเกมให้ต่อ คลิกไอคอนข้างนาฬิกาเพื่อเปิด หรือคลิกขวาเพื่อออกจากโปรแกรม");
+                SettingsService.General.TrayHintShown = true;
+                SettingsService.Save();
+            }
+            return;
+        }
+
         // กำลังเล่นอยู่: จบเซสชันก่อน (บันทึกเวลา + คืนค่าเครื่อง) แล้วค่อยปิด
         if (Session.IsActive && !_closeAfterSession)
         {
             e.Cancel = true;
+            ShowFromTray();
             var confirmed = ConfirmDialog.Show(this, "จบเซสชันแล้วปิด PC Hub?",
                 $"กำลังเล่น {Session.CurrentGame?.Name} อยู่ PC Hub จะบันทึกเวลาเล่นถึงตอนนี้ และคืนค่าเครื่องก่อนปิด\n(ตัวเกมไม่ถูกปิด)",
                 "จบแล้วปิด");
-            if (!confirmed) return;
+            if (!confirmed)
+            {
+                _exitRequested = false;
+                return;
+            }
             _closeAfterSession = true;
             Session.Stop();
             return;
         }
         base.OnClosing(e);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        GameWatcher.Instance.Stop(); // บันทึกเกมที่ยังเล่นอยู่ก่อนออก
+        _tray?.Dispose();
+        base.OnClosed(e);
     }
 
 #if DEBUG

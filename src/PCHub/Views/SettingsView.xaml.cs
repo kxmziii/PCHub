@@ -10,10 +10,17 @@ public partial class SettingsView : UserControl
 {
     private UpdateInfo? _update;
 
+    private readonly bool _ready;
+
     public SettingsView()
     {
         InitializeComponent();
         VersionText.Text = "PC Hub เวอร์ชัน " + Assembly.GetExecutingAssembly().GetName().Version?.ToString(3);
+
+        TraySwitch.IsChecked = SettingsService.General.MinimizeToTray;
+        StartupSwitch.IsChecked = StartupService.IsEnabled;
+        TrackSwitch.IsChecked = SettingsService.General.AutoTrackGames;
+        _ready = true; // ตั้งค่าเริ่มต้นเสร็จ ต่อจากนี้กดสวิตช์ถึงจะบันทึก
 
         if (!UpdateService.IsAvailable)
         {
@@ -25,6 +32,26 @@ public partial class SettingsView : UserControl
         else
         {
             UpdateStatus.Text = "กดเพื่อดูว่ามีเวอร์ชันใหม่ไหม";
+        }
+    }
+
+    private void Switch_Changed(object sender, RoutedEventArgs e)
+    {
+        if (!_ready) return;
+
+        SettingsService.General.MinimizeToTray = TraySwitch.IsChecked == true;
+        SettingsService.General.AutoTrackGames = TrackSwitch.IsChecked == true;
+        SettingsService.Save();
+
+        if (sender == StartupSwitch)
+        {
+            var enabled = StartupSwitch.IsChecked == true;
+            StartupService.SetEnabled(enabled);
+            Toast.Show(enabled ? "เปิดเครื่องครั้งหน้า PC Hub จะรอที่มุมจอให้เลย" : "ไม่เปิด PC Hub พร้อม Windows แล้ว");
+        }
+        else
+        {
+            Toast.Show("บันทึกแล้ว");
         }
     }
 

@@ -61,7 +61,7 @@
                                 <TextBlock x:Name="UpdateTitle" FontSize="13.5"/>
                             </StackPanel>
                             <TextBlock FontSize="12" Margin="0,4,0,8" TextWrapping="Wrap" Foreground="{StaticResource TextMuted}"
-                                       Text="โหลดไว้แล้ว จะอัปเดตเองตอนปิดโปรแกรม"/>
+                                       Text="โหลดไว้แล้ว จะอัปเดตเองตอนกดปิดหน้าต่าง"/>
                             <Button Style="{StaticResource PrimaryButton}" Padding="12,6" Content="รีสตาร์ทเลย"
                                     Click="RestartForUpdate_Click"/>
                         </StackPanel>

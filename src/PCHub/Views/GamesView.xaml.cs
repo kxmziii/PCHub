@@ -28,12 +28,15 @@ public partial class GamesView : UserControl
         {
             if (_view == null) await LoadAsync();
         };
-        GameSessionService.Instance.SessionEnded += async _ =>
-        {
-            // อัปเดตเวลาเล่นบนการ์ดหลังเลิกเล่น
-            await Task.Run(() => PlayTimeService.ApplyTo(_games));
-            RefreshView();
-        };
+        // อัปเดตเวลาเล่นบนการ์ดหลังเลิกเล่น (ทั้งที่เล่นผ่าน PC Hub และที่จับเวลาเองเบื้องหลัง)
+        GameSessionService.Instance.SessionEnded += async _ => await RefreshPlayTimesAsync();
+        GameWatcher.Instance.SessionRecorded += async _ => await RefreshPlayTimesAsync();
+    }
+
+    private async Task RefreshPlayTimesAsync()
+    {
+        await Task.Run(() => PlayTimeService.ApplyTo(_games));
+        RefreshView();
     }
 
     private static List<string> Hidden => SettingsService.Current.HiddenGames;

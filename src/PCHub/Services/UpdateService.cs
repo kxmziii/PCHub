@@ -51,8 +51,9 @@ public static class UpdateService
         return update;
     }
 
-    /// <summary>ติดตั้งอัปเดตที่โหลดไว้แล้วรีสตาร์ทเป็นเวอร์ชันใหม่ทันที</summary>
-    public static void RestartNow(UpdateInfo update) => Manager.ApplyUpdatesAndRestart(update.TargetFullRelease);
+    /// <summary>ติดตั้งอัปเดตที่โหลดไว้แล้วรีสตาร์ทเป็นเวอร์ชันใหม่ทันที (args เช่น --tray = เปิดใหม่แบบย่อไว้มุมจอ)</summary>
+    public static void RestartNow(UpdateInfo update, string[]? args = null) =>
+        Manager.ApplyUpdatesAndRestart(update.TargetFullRelease, args);
 
     /// <summary>โหลดอัปเดตแล้วรีสตาร์ทเป็นเวอร์ชันใหม่</summary>
     public static async Task DownloadAndRestartAsync(UpdateInfo update)

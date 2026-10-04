@@ -41,6 +41,26 @@ public static class ProcessHelper
         return found;
     }
 
+    /// <summary>
+    /// ดูทีเดียวว่าโฟลเดอร์ไหนมีโปรแกรมรันอยู่บ้าง (ไล่โปรเซสรอบเดียว เร็วกว่าเรียก AnyRunningIn ทีละโฟลเดอร์)
+    /// คืนค่า id ของรายการที่มีโปรแกรมรันอยู่
+    /// </summary>
+    public static HashSet<string> FindRunning(IReadOnlyList<(string Id, string Folder)> targets)
+    {
+        var prefixes = targets.Select(t => (t.Id, Prefix: t.Folder.TrimEnd('\\', '/') + "\\")).ToList();
+        var running = new HashSet<string>();
+        foreach (var process in Process.GetProcesses())
+        {
+            if (GetPath(process.Id) is { } path)
+            {
+                foreach (var (id, prefix) in prefixes)
+                    if (path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) running.Add(id);
+            }
+            process.Dispose();
+        }
+        return running;
+    }
+
     private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
 
     [DllImport("kernel32.dll", SetLastError = true)]

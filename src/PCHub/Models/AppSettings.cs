@@ -13,4 +13,6 @@ public class AppSettings
 
     /// <summary>null = ยังไม่เคยตั้งค่า (SettingsService จะใส่ค่าเริ่มต้นให้)</summary>
     public BoostSettings? Boost { get; set; }
+
+    public GeneralSettings General { get; set; } = new();
 }

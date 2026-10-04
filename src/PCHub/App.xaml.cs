@@ -23,15 +23,30 @@ public partial class App : Application
         }
 #endif
 
+        // ปิดหน้าต่างหลัก = ออกจากโปรแกรม (หน้าโหลดหรือกล่องข้อความอื่นๆ ไม่เกี่ยว)
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+        // --tray = เปิดพร้อม Windows หรือหลังอัปเดต: ย่อไว้ที่มุมจอเงียบๆ ไม่ต้องมีหน้าโหลด
+        var startInTray = e.Args.Contains("--tray");
+
         // หน้าโหลด: โหลดการตั้งค่าและหาเกมไว้ล่วงหน้า แล้วค่อยเปิดหน้าต่างหลัก
-        var splash = new SplashWindow();
-        splash.Show();
-        await splash.LoadAsync();
+        SplashWindow? splash = null;
+        if (!startInTray)
+        {
+            splash = new SplashWindow();
+            splash.Show();
+            await splash.LoadAsync();
+        }
 
         var window = new MainWindow();
         MainWindow = window;
-        window.Show();
-        await splash.FadeOutAndCloseAsync();
+        window.StartBackgroundWork();
+
+        if (splash != null)
+        {
+            window.Show();
+            await splash.FadeOutAndCloseAsync();
+        }
     }
 
 #if DEBUG
@@ -43,7 +58,7 @@ public partial class App : Application
         var snapshotPath = GetArg(args, "--snapshot")!;
         var page = GetArg(args, "--page");
 
-        var window = new MainWindow();
+        var window = new MainWindow(showTrayIcon: false);
         MainWindow = window;
         HideOffScreen(window);
         if (GetArg(args, "--size")?.Split('x') is [var w, var h])

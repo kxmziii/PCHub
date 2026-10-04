@@ -87,7 +87,7 @@ public partial class GameStorageView : UserControl
         var games = await GameLibraryService.GetAsync(refresh);
         _items = games
             .Where(g => g.InstallFolder != null && Directory.Exists(g.InstallFolder))
-            .Select(g => new GameStorageItem { Game = g, Size = g.SizeOnDisk ?? (IsTooBroad(g.InstallFolder!) ? 0 : null) })
+            .Select(g => new GameStorageItem { Game = g, Size = g.SizeOnDisk ?? (StorageService.IsTooBroad(g.InstallFolder!) ? 0 : null) })
             .ToList();
         ShowSorted();
 
@@ -125,23 +125,6 @@ public partial class GameStorageView : UserControl
             ratio,
             $"เหลือ {SizeFormatter.Format(drive.TotalFreeSpace)} จาก {SizeFormatter.Format(drive.TotalSize)}",
             IsLow: ratio > 0.9);
-    }
-
-    /// <summary>โฟลเดอร์ใหญ่ที่ไม่ใช่โฟลเดอร์เกมจริง (เช่น เกมที่เพิ่มเองจากไฟล์บน Desktop) ไม่นับ เดี๋ยวช้าและตัวเลขผิด</summary>
-    private static bool IsTooBroad(string folder)
-    {
-        var full = Path.GetFullPath(folder).TrimEnd('\\');
-        if (full.Length <= 3) return true; // เช่น C:\
-        Environment.SpecialFolder[] broad =
-        [
-            Environment.SpecialFolder.UserProfile, Environment.SpecialFolder.DesktopDirectory,
-            Environment.SpecialFolder.MyDocuments, Environment.SpecialFolder.ProgramFiles,
-            Environment.SpecialFolder.ProgramFilesX86, Environment.SpecialFolder.Windows,
-            Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolder.ApplicationData,
-        ];
-        var downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-        return broad.Select(Environment.GetFolderPath).Append(downloads)
-            .Any(f => string.Equals(f.TrimEnd('\\'), full, StringComparison.OrdinalIgnoreCase));
     }
 
     private async void Refresh_Click(object sender, RoutedEventArgs e) => await LoadAsync(refresh: true);
