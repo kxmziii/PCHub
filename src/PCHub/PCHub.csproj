@@ -10,7 +10,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>PCHub</AssemblyName>
     <Product>PC Hub</Product>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <!-- ไอคอนของไฟล์ .exe (Desktop, Explorer, Start Menu) สร้างด้วย tools\make-icon.ps1 -->
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
@@ -24,6 +24,20 @@
     <!-- กันชื่อชนกันระหว่าง WPF กับ WinForms (เช่น Application, Button) -->
     <Using Remove="System.Windows.Forms" />
     <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ตัวติดตั้งและระบบอัปเดต (ดู tools\release.ps1) -->
+    <PackageReference Include="Velopack" Version="1.2.161" />
+  </ItemGroup>
+
+  <!-- ใช้ Main ของเราเอง (Program.cs) เพื่อให้ Velopack ทำงานก่อน WPF -->
+  <PropertyGroup>
+    <StartupObject>PCHub.Program</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ApplicationDefinition Remove="App.xaml" />
+    <Page Include="App.xaml" />
   </ItemGroup>
 
 </Project>
