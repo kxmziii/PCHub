@@ -566,8 +566,8 @@
     <Style TargetType="views:NavButton">
         <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
         <Setter Property="FontSize" Value="14.5"/>
-        <Setter Property="Height" Value="44"/>
-        <Setter Property="Margin" Value="0,0,0,4"/>
+        <Setter Property="Height" Value="42"/>
+        <Setter Property="Margin" Value="0,0,0,3"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="GroupName" Value="MainNav"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>

@@ -76,6 +76,8 @@ public partial class App : Application
                 await ready;
                 await Task.Delay(300);
                 SaveSnapshot(target, snapshotPath);
+                if (GetArg(e.Args, "--export-wrapped") is { } exportPath && window.CurrentPage is Views.WrappedView wrapped)
+                    wrapped.ExportForTest(exportPath);
                 Shutdown();
             };
             timer.Start();

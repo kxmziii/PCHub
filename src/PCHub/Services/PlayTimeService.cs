@@ -78,10 +78,16 @@ public static class PlayTimeService
         }
     }
 
+    /// <summary>เวลาเล่นใน 2 สัปดาห์ล่าสุดที่ Steam จำไว้ key = appid (ใช้ทำ Gaming Wrapped ตอนยังไม่มีข้อมูลของ PC Hub)</summary>
+    public static Dictionary<string, TimeSpan> SteamTwoWeeks() =>
+        LoadSteamStats().Where(s => s.Value.TwoWeeks > TimeSpan.Zero).ToDictionary(s => s.Key, s => s.Value.TwoWeeks);
+
+    private record SteamStat(TimeSpan PlayTime, DateTime? LastPlayed, TimeSpan TwoWeeks);
+
     /// <summary>เวลาเล่นที่ Steam จำไว้ (จากบัญชี Steam ที่ใช้ล่าสุดในเครื่อง) key = appid</summary>
-    private static Dictionary<string, (TimeSpan PlayTime, DateTime? LastPlayed)> LoadSteamStats()
+    private static Dictionary<string, SteamStat> LoadSteamStats()
     {
-        var result = new Dictionary<string, (TimeSpan, DateTime?)>();
+        var result = new Dictionary<string, SteamStat>();
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
@@ -104,11 +110,10 @@ public static class PlayTimeService
             foreach (var (appId, value) in apps)
             {
                 if (value is not Dictionary<string, object> app) continue;
-                var minutes = app.TryGetValue("Playtime", out var p) && long.TryParse(p as string, out var m) ? m : 0;
                 DateTime? last = app.TryGetValue("LastPlayed", out var l) && long.TryParse(l as string, out var unix) && unix > 0
                     ? DateTimeOffset.FromUnixTimeSeconds(unix).LocalDateTime
                     : null;
-                result[appId] = (TimeSpan.FromMinutes(minutes), last);
+                result[appId] = new SteamStat(Minutes(app, "Playtime"), last, Minutes(app, "Playtime2wks"));
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
@@ -117,4 +122,9 @@ public static class PlayTimeService
         }
         return result;
     }
+
+    private static TimeSpan Minutes(Dictionary<string, object> app, string key) =>
+        app.TryGetValue(key, out var value) && long.TryParse(value as string, out var minutes)
+            ? TimeSpan.FromMinutes(minutes)
+            : TimeSpan.Zero;
 }

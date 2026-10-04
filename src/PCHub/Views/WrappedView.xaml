@@ -1,0 +1,142 @@
+<UserControl x:Class="PCHub.Views.WrappedView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="clr-namespace:PCHub.Views">
+    <DockPanel>
+        <!-- หัวข้อ + ปุ่มแชร์ -->
+        <Grid DockPanel.Dock="Top" Margin="0,0,12,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Style="{StaticResource PageTitle}" Text="Gaming Wrapped"/>
+                <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,0,0,14"
+                           Text="สรุปการเล่นเกมของคุณเป็นการ์ดสวยๆ คัดลอกไปวางใน Discord หรือบันทึกเป็นรูปไปแชร์ได้เลย"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,4,0,0">
+                <Button x:Name="CopyButton" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Click="Copy_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8C8;" FontSize="13" Margin="0,0,8,0"/>
+                        <TextBlock Text="คัดลอกรูป"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="SaveButton" Style="{StaticResource PrimaryButton}" Click="Save_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" FontSize="13" Margin="0,0,8,0"/>
+                        <TextBlock Text="บันทึกรูป"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <WrapPanel DockPanel.Dock="Top" Margin="0,0,12,8">
+            <RadioButton x:Name="ChipThisMonth" Style="{StaticResource FilterChip}" Tag="ThisMonth" Content="เดือนนี้"
+                         Checked="Period_Checked"/>
+            <RadioButton x:Name="ChipLastMonth" Style="{StaticResource FilterChip}" Tag="LastMonth" Content="เดือนที่แล้ว"
+                         Checked="Period_Checked"/>
+            <RadioButton x:Name="ChipSteam" Style="{StaticResource FilterChip}" Tag="SteamTwoWeeks"
+                         Content="2 สัปดาห์ล่าสุด (Steam)" Checked="Period_Checked"/>
+        </WrapPanel>
+
+        <views:StatusToast x:Name="Toast" DockPanel.Dock="Bottom" Margin="0,8,12,0"/>
+
+        <Grid>
+            <TextBlock x:Name="LoadingText" Style="{StaticResource BodyText}" HorizontalAlignment="Center"
+                       VerticalAlignment="Center" Text="กำลังรวบรวมข้อมูลการเล่น..."/>
+            <Border x:Name="EmptyCard" Style="{StaticResource Card}" VerticalAlignment="Top" Margin="0,0,12,0"
+                    Visibility="Collapsed">
+                <TextBlock x:Name="EmptyText" Style="{StaticResource BodyText}"/>
+            </Border>
+
+            <!-- การ์ดสำหรับแชร์ (ออกแบบที่ 540x675 แล้วบันทึกเป็นรูป 1080x1350) -->
+            <Viewbox x:Name="CardHost" Stretch="Uniform" StretchDirection="DownOnly"
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,12,0" Visibility="Collapsed">
+                <Border x:Name="ShareCard" Width="540" Height="675" CornerRadius="24"
+                        TextOptions.TextFormattingMode="Ideal">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#1C1F2A" Offset="0"/>
+                            <GradientStop Color="#222A44" Offset="0.55"/>
+                            <GradientStop Color="#2F4275" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Grid Margin="36,30,36,26">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Assets/logo.png" Width="24" Height="24" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Text="PC HUB  ·  GAMING WRAPPED" FontSize="13" Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{StaticResource Accent}"/>
+                        </StackPanel>
+
+                        <TextBlock x:Name="CardPeriod" Grid.Row="1" FontFamily="{StaticResource HeadingFont}" FontSize="22"
+                                   Margin="0,18,0,0" Foreground="{StaticResource TextSecondary}"/>
+                        <TextBlock x:Name="CardTotal" Grid.Row="2" FontFamily="{StaticResource HeadingFont}" FontSize="60"
+                                   Margin="0,-4,0,0"/>
+                        <StackPanel Grid.Row="3">
+                            <TextBlock x:Name="CardSub" FontSize="15" Foreground="{StaticResource TextSecondary}"/>
+                            <TextBlock x:Name="CardExtra" FontSize="13" Margin="0,4,0,0" Foreground="{StaticResource TextMuted}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <!-- เกมโปรด + อันดับรองลงมา -->
+                        <Grid Grid.Row="4" Margin="0,22,0,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="TopCover" Width="132" Height="198" CornerRadius="12" VerticalAlignment="Top"
+                                    Background="#33000000"/>
+                            <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                                <TextBlock Text="เกมโปรด" FontSize="13" Foreground="{StaticResource TextMuted}"/>
+                                <TextBlock x:Name="TopName" FontFamily="{StaticResource HeadingFont}" FontSize="24"
+                                           TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="TopTime" FontSize="15" Foreground="{StaticResource Accent}"/>
+                                <ItemsControl x:Name="RunnerUps" Margin="0,18,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type views:WrappedRow}">
+                                            <StackPanel Margin="0,0,0,12">
+                                                <DockPanel>
+                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding TimeText}" FontSize="13"
+                                                               Foreground="{StaticResource TextSecondary}"/>
+                                                    <TextBlock Text="{Binding Label}" FontSize="13.5" TextTrimming="CharacterEllipsis"/>
+                                                </DockPanel>
+                                                <Border Height="6" CornerRadius="3" Margin="0,5,0,0" HorizontalAlignment="Left"
+                                                        Width="{Binding BarWidth}" Background="{StaticResource Accent}" Opacity="0.7"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- สไตล์การเล่น -->
+                        <Border Grid.Row="5" CornerRadius="14" Padding="18,12" Background="#26FFFFFF">
+                            <StackPanel>
+                                <TextBlock Text="สไตล์การเล่นของคุณ" FontSize="12.5" Foreground="{StaticResource TextSecondary}"/>
+                                <TextBlock x:Name="PersonalityText" FontFamily="{StaticResource HeadingFont}" FontSize="26"
+                                           Foreground="{StaticResource Accent}"/>
+                                <TextBlock x:Name="PersonalityDetail" FontSize="13" Foreground="{StaticResource TextSecondary}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <DockPanel Grid.Row="6" Margin="2,14,2,0">
+                            <TextBlock DockPanel.Dock="Right" Text="สร้างด้วย PC Hub" FontSize="11"
+                                       Foreground="{StaticResource TextMuted}"/>
+                            <TextBlock x:Name="CardNote" FontSize="11" Foreground="{StaticResource TextMuted}"/>
+                        </DockPanel>
+                    </Grid>
+                </Border>
+            </Viewbox>
+        </Grid>
+    </DockPanel>
+</UserControl>

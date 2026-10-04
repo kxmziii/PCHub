@@ -24,7 +24,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        _navButtons = [NavGames, NavDeals, NavModes, NavCleaner, NavDiscord, NavTools, NavSettings];
+        _navButtons = [NavGames, NavDeals, NavWrapped, NavModes, NavCleaner, NavDiscord, NavTools, NavSettings];
         VersionText.Text = "เวอร์ชัน " + Assembly.GetExecutingAssembly().GetName().Version?.ToString(3);
         ShowPage("games");
 
@@ -71,6 +71,7 @@ public partial class MainWindow : Window
             page = key switch
             {
                 "deals" => new DealsView(),
+                "wrapped" => new WrappedView(),
                 "modes" => new ModesView(),
                 "cleaner" => new CleanerView(),
                 "discord" => new DiscordView(),
