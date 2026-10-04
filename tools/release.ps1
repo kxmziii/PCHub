@@ -21,7 +21,7 @@ $ErrorActionPreference = 'Stop'
 
 $root = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $project = Join-Path $root 'src\PCHub\PCHub.csproj'
-$publish = Join-Path $root 'publish'
+$publishDir = Join-Path $root 'publish'
 $releases = Join-Path $root 'releases'
 
 $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
@@ -34,8 +34,8 @@ if (-not $version) { throw 'ไม่เจอ <Version> ใน PCHub.csproj' }
 Write-Host "สร้าง PC Hub เวอร์ชัน $version ..."
 
 # 1) build แบบรวม .NET ไว้ในตัว (เพื่อนไม่ต้องลง .NET เอง)
-if (Test-Path $publish) { Remove-Item $publish -Recurse -Force }
-& $dotnet publish $project -c Release -r win-x64 --self-contained true -o $publish -nologo -v q
+if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
+& $dotnet publish $project -c Release -r win-x64 --self-contained true -o $publishDir -nologo -v q
 if ($LASTEXITCODE -ne 0) { throw 'build ไม่ผ่าน' }
 
 # 2) แพ็กเป็นตัวติดตั้งด้วย Velopack
@@ -47,7 +47,7 @@ try {
     & $dotnet vpk pack `
         --packId PCHub `
         --packVersion $version `
-        --packDir $publish `
+        --packDir $publishDir `
         --mainExe PCHub.exe `
         --packTitle 'PC Hub' `
         --icon (Join-Path $root 'src\PCHub\Assets\app.ico') `
