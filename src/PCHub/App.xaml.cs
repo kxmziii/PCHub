@@ -19,13 +19,18 @@ public partial class App : Application
         window.Show();
 
 #if DEBUG
-        // ใช้ตอนพัฒนา: PCHub.exe --snapshot out.png [--page cleaner | mode-editor] [--scan]
+        // ใช้ตอนพัฒนา: PCHub.exe --snapshot out.png [--page cleaner | mode-editor] [--scan] [--delay ms] [--size 1400x900]
         // เปิดหน้าที่ต้องการ แคปหน้าจอเป็นรูป แล้วปิดโปรแกรม (--scan = สั่งสแกนขยะก่อนแคป, แค่สแกนไม่ลบ)
         var snapshotPath = GetArg(e.Args, "--snapshot");
         if (snapshotPath != null)
         {
             Window target = window;
             Task ready = Task.CompletedTask;
+            if (GetArg(e.Args, "--size")?.Split('x') is [var w, var h])
+            {
+                window.Width = double.Parse(w);
+                window.Height = double.Parse(h);
+            }
             var page = GetArg(e.Args, "--page");
             if (page == "mode-editor")
             {
@@ -40,7 +45,8 @@ public partial class App : Application
                     ready = cleaner.ScanAsync();
             }
             // รอให้แอนิเมชันเฟดหน้าเล่นจบก่อนค่อยแคป
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+            var delay = int.TryParse(GetArg(e.Args, "--delay"), out var ms) ? ms : 500;
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(delay) };
             timer.Tick += async (_, _) =>
             {
                 timer.Stop();

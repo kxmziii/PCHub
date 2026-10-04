@@ -39,7 +39,7 @@ public partial class ModeEditorWindow : Window
         IconList.SelectedItem = IconChoices.Contains(mode.Icon) ? mode.Icon : IconChoices[^1];
 
         // แก้บนสำเนา กดยกเลิกแล้วโหมดเดิมจะไม่เปลี่ยน
-        _apps = new ObservableCollection<AppEntry>(mode.Apps.Select(a => new AppEntry { Name = a.Name, Path = a.Path }));
+        _apps = new ObservableCollection<AppEntry>(mode.Apps.Select(a => a.Clone()));
         _apps.CollectionChanged += (_, _) => UpdateSelectedHeader();
         SelectedList.ItemsSource = _apps;
         UpdateSelectedHeader();
@@ -74,8 +74,8 @@ public partial class ModeEditorWindow : Window
 
     private void AddApp(AppEntry app)
     {
-        if (_apps.Any(a => a.Path.Equals(app.Path, StringComparison.OrdinalIgnoreCase))) return;
-        _apps.Add(new AppEntry { Name = app.Name, Path = app.Path });
+        if (_apps.Any(a => a.Path.Equals(app.Path, StringComparison.OrdinalIgnoreCase) && a.Arguments == app.Arguments)) return;
+        _apps.Add(app.Clone());
     }
 
     private void SearchBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) =>

@@ -62,7 +62,7 @@
                                 <DataTemplate DataType="{x:Type models:AppEntry}">
                                     <DockPanel>
                                         <Image DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,10,0"
-                                               Source="{Binding Path, Converter={StaticResource PathToIcon}}"
+                                               Source="{Binding IconSource, Converter={StaticResource PathToIcon}}"
                                                RenderOptions.BitmapScalingMode="HighQuality"/>
                                         <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}"
                                                 Width="28" Height="28" FontSize="11" Content="&#xE711;"
@@ -99,7 +99,7 @@
                             <DataTemplate DataType="{x:Type models:AppEntry}">
                                 <DockPanel>
                                     <Image DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,10,0"
-                                           Source="{Binding Path, Converter={StaticResource PathToIcon}}"
+                                           Source="{Binding IconSource, Converter={StaticResource PathToIcon}}"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                                     <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}"
                                             Width="28" Height="28" FontSize="12" Content="&#xE710;"

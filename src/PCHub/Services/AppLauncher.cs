@@ -7,13 +7,19 @@ namespace PCHub.Services;
 
 public static class AppLauncher
 {
-    /// <summary>เปิดแอพ 1 ตัว คืนค่า false ถ้าเปิดไม่ได้ (เช่น ไฟล์ถูกลบหรือย้ายไปแล้ว)</summary>
+    /// <summary>เปิดแอพหรือเกม 1 ตัว คืนค่า false ถ้าเปิดไม่ได้ (เช่น ไฟล์ถูกลบหรือย้ายไปแล้ว)</summary>
     public static bool Launch(AppEntry app)
     {
-        if (!File.Exists(app.Path)) return false;
+        // ลิงก์อย่าง steam://rungameid/... ไม่ใช่ไฟล์ เช็คว่ามีไฟล์ไม่ได้
+        var isLink = app.Path.Contains("://", StringComparison.Ordinal);
+        if (!isLink && !File.Exists(app.Path)) return false;
         try
         {
-            Process.Start(new ProcessStartInfo(app.Path) { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo(app.Path)
+            {
+                UseShellExecute = true,
+                Arguments = app.Arguments ?? "",
+            });
             return true;
         }
         catch (Win32Exception)

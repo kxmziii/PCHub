@@ -18,10 +18,17 @@ public static class IconService
         if (string.IsNullOrEmpty(path)) return null;
         if (Cache.TryGetValue(path, out var cached)) return cached;
 
-        var image = LoadIcon(path);
+        // ถ้าเป็นไฟล์รูปอยู่แล้ว (เช่น ไอคอนเกมจาก Steam) ใช้รูปนั้นเลย
+        var image = IsImage(path) ? ImageLoader.Load(path, IconSize) : LoadIcon(path);
         Cache[path] = image;
         return image;
     }
+
+    private static bool IsImage(string path) =>
+        path.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+        path.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+        path.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+        path.EndsWith(".png", StringComparison.OrdinalIgnoreCase);
 
     private static BitmapSource? LoadIcon(string path)
     {

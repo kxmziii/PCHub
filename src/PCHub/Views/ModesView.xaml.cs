@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
 using PCHub.Models;
 using PCHub.Services;
 
@@ -9,20 +8,24 @@ namespace PCHub.Views;
 
 public partial class ModesView : UserControl
 {
-    private readonly ObservableCollection<LaunchMode> _modes;
-    private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromSeconds(4) };
+    private readonly ObservableCollection<LaunchMode> _modes = [];
 
     public ModesView()
     {
         InitializeComponent();
-        _modes = new ObservableCollection<LaunchMode>(SettingsService.Current.Modes);
         ModeList.ItemsSource = _modes;
 
-        _statusTimer.Tick += (_, _) =>
+        // โหลดใหม่ทุกครั้งที่เปิดหน้านี้ (หน้าคลังเกมอาจเพิ่มเกมเข้าโหมดไว้)
+        IsVisibleChanged += (_, e) =>
         {
-            _statusTimer.Stop();
-            StatusBar.Visibility = Visibility.Collapsed;
+            if ((bool)e.NewValue) Reload();
         };
+    }
+
+    private void Reload()
+    {
+        _modes.Clear();
+        foreach (var mode in SettingsService.Current.Modes) _modes.Add(mode);
     }
 
     private async void LaunchMode_Click(object sender, RoutedEventArgs e)
@@ -96,13 +99,5 @@ public partial class ModesView : UserControl
         SettingsService.Save();
     }
 
-    private void ShowStatus(string message, bool isError = false)
-    {
-        StatusText.Text = message;
-        StatusIcon.Text = isError ? "" : ""; // ตกใจ / ติ๊กถูก
-        StatusIcon.Foreground = (System.Windows.Media.Brush)FindResource(isError ? "Danger" : "Success");
-        StatusBar.Visibility = Visibility.Visible;
-        _statusTimer.Stop();
-        _statusTimer.Start();
-    }
+    private void ShowStatus(string message, bool isError = false) => Toast.Show(message, isError);
 }

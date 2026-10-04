@@ -16,18 +16,18 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        _navButtons = [NavModes, NavCleaner, NavDiscord, NavTools, NavSettings];
+        _navButtons = [NavGames, NavModes, NavCleaner, NavDiscord, NavTools, NavSettings];
         VersionText.Text = "เวอร์ชัน " + Assembly.GetExecutingAssembly().GetName().Version?.ToString(3);
-        ShowPage("modes");
+        ShowPage("games");
     }
 
     /// <summary>หน้าที่เปิดอยู่ตอนนี้</summary>
     public object? CurrentPage => PageHost.Content;
 
-    /// <summary>สลับไปหน้าที่ต้องการ: modes, cleaner, discord, tools, settings</summary>
+    /// <summary>สลับไปหน้าที่ต้องการ: games, modes, cleaner, discord, tools, settings</summary>
     public void ShowPage(string key)
     {
-        var button = _navButtons.FirstOrDefault(b => (string)b.Tag == key) ?? NavModes;
+        var button = _navButtons.FirstOrDefault(b => (string)b.Tag == key) ?? NavGames;
         button.IsChecked = true;
     }
 
@@ -38,11 +38,12 @@ public partial class MainWindow : Window
         {
             page = key switch
             {
+                "modes" => new ModesView(),
                 "cleaner" => new CleanerView(),
                 "discord" => new DiscordView(),
                 "tools" => new ToolsView(),
                 "settings" => new SettingsView(),
-                _ => new ModesView(),
+                _ => new GamesView(),
             };
             _pages[key] = page;
         }
