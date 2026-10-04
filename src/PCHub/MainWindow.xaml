@@ -61,6 +61,8 @@
                 <StackPanel>
                     <views:NavButton x:Name="NavGames" Tag="games" Icon="&#xE7FC;" Content="คลังเกม"
                                      Checked="Nav_Checked"/>
+                    <views:NavButton x:Name="NavDeals" Tag="deals" Icon="&#xE719;" Content="ของฟรี &amp; ลดราคา"
+                                     Checked="Nav_Checked"/>
                     <views:NavButton x:Name="NavModes" Tag="modes" Icon="&#xE945;" Content="โหมด &amp; เปิดแอพ"
                                      Checked="Nav_Checked"/>
                     <views:NavButton x:Name="NavCleaner" Tag="cleaner" Icon="&#xE74D;" Content="ลบขยะ"
