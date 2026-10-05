@@ -62,6 +62,7 @@ public static class GameLibraryService
             .Select(g => g.First())
             .ToList();
         PlayTimeService.ApplyTo(result);
+        AppLog.Info($"Game scan: {result.Count} games ({string.Join(", ", result.GroupBy(g => g.Source).Select(g => $"{g.Key} {g.Count()}"))})");
         return result;
     }
 
@@ -75,7 +76,7 @@ public static class GameLibraryService
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException
                                        or InvalidOperationException or System.Security.SecurityException)
         {
-            // ข้าม launcher นี้
+            AppLog.Warn($"Game scan step {source.Method.Name} failed", ex); // ข้าม launcher นี้
         }
     }
 

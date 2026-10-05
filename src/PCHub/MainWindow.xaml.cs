@@ -255,6 +255,8 @@ public partial class MainWindow : Window
         {
             e.Cancel = true;
             Hide();
+            // อยู่มุมจอแล้ว คืนแรมที่ไม่ได้ใช้ให้ Windows (ทำหลังหน้าต่างหายไปแล้ว จะได้ไม่รู้สึกสะดุด)
+            Dispatcher.BeginInvoke(MemoryTrim.Trim, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
 
             // มีอัปเดตโหลดไว้แล้ว: ถือโอกาสอัปเดตตอนนี้เลย ผู้ใช้ไม่เห็นอะไรสะดุด
             if (_pendingUpdate != null && !Session.IsActive)
@@ -295,6 +297,7 @@ public partial class MainWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        AppLog.Info("Exit PC Hub");
         GameWatcher.Instance.Stop(); // บันทึกเกมที่ยังเล่นอยู่ก่อนออก
         _tray?.Dispose();
         base.OnClosed(e);

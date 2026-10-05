@@ -99,6 +99,7 @@ public sealed class GameWatcher
         var played = new PlaySession(tracked.Game.Id, tracked.Game.Name, tracked.Start, tracked.LastSeen);
         if (played.Duration < MinimumSession) return;
         PlayTimeService.Record(played);
+        AppLog.Info($"Auto-tracked {played.GameName}: {played.Duration:hh\\:mm\\:ss}");
         SessionRecorded?.Invoke(played);
     }
 }

@@ -72,6 +72,7 @@ public sealed class AlertService
             var lines = deals.Concat(patches).ToList();
             if (lines.Count == 0) return;
 
+            AppLog.Info($"Alerts: {deals.Count} deal(s), {patches.Count} patch(es)");
             var title = lines.Count == 1 ? "PC Hub" : $"PC Hub: มีของใหม่ {lines.Count} อย่าง";
             var message = string.Join("\n", lines.Take(3)) + (lines.Count > 3 ? $"\nและอีก {lines.Count - 3} อย่าง" : "");
             AlertRaised?.Invoke(new Alert(title, message, deals.Count > 0 ? "deals" : "games"));
@@ -155,7 +156,7 @@ public sealed class AlertService
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException
                                        or KeyNotFoundException or InvalidOperationException or FormatException)
         {
-            // ข้ามไป รอบหน้าค่อยลองใหม่
+            AppLog.Warn("Alert check step failed", ex); // ข้ามไป รอบหน้าค่อยลองใหม่
         }
     }
 

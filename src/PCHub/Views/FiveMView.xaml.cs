@@ -90,6 +90,7 @@ public partial class FiveMView : UserControl
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
+            AppLog.Warn("FiveM server list failed", ex);
             ShowMessage("โหลดรายชื่อเซิร์ฟไม่ได้ ลองเช็คเน็ตแล้วกดปุ่มโหลดใหม่ที่มุมขวาบน");
         }
         finally

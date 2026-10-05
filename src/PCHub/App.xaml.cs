@@ -1,4 +1,5 @@
 using System.Windows;
+using PCHub.Services;
 using PCHub.Views;
 #if DEBUG
 using System.IO;
@@ -14,6 +15,9 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        HookErrorHandlers();
+        AppLog.CleanupOld();
+        AppLog.Info($"Start PC Hub {AppLog.Version} args=[{string.Join(' ', e.Args)}] on {System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
 
 #if DEBUG
         if (e.Args.Contains("--snapshot"))
@@ -49,6 +53,48 @@ public partial class App : Application
         }
     }
 
+    // ===== ดัก error ทั้งโปรแกรม: บันทึกไว้ แทนที่จะเด้งปิดหายไปเฉยๆ =====
+
+    private DateTime _lastErrorDialog = DateTime.MinValue;
+
+    private void HookErrorHandlers()
+    {
+        DispatcherUnhandledException += (_, e) =>
+        {
+            AppLog.Error("Unhandled UI exception", e.Exception);
+            e.Handled = true; // ส่วนใหญ่ยังใช้ต่อได้ ดีกว่าโปรแกรมหายไปเฉยๆ
+            if (DateTime.Now - _lastErrorDialog < TimeSpan.FromSeconds(30)) return; // กันกล่องเด้งรัวๆ
+            _lastErrorDialog = DateTime.Now;
+            ShowErrorDialog();
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject is Exception ex) AppLog.Error("Unhandled background exception (app is closing)", ex);
+        };
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            AppLog.Error("Unobserved task exception", e.Exception);
+            e.SetObserved();
+        };
+    }
+
+    private void ShowErrorDialog()
+    {
+        // ย่ออยู่มุมจอ ไม่ต้องเด้งกล่องรบกวน (บันทึกไว้แล้ว)
+        if (MainWindow is not { IsVisible: true } owner) return;
+        var create = ConfirmDialog.Show(owner, "PC Hub เจอปัญหานิดหน่อย",
+            "บันทึกรายละเอียดไว้แล้ว ใช้งานต่อได้ตามปกติ\nถ้าเจอบ่อย กดสร้างไฟล์รายงานแล้วส่งให้คนทำ PC Hub ทาง Discord",
+            "สร้างไฟล์รายงาน");
+        if (create) OpenProblemReport();
+    }
+
+    /// <summary>สร้างไฟล์รายงานปัญหาบน Desktop แล้วเปิดโฟลเดอร์ให้เห็นไฟล์</summary>
+    public static void OpenProblemReport()
+    {
+        var path = ProblemReport.Create();
+        System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"")?.Dispose();
+    }
+
 #if DEBUG
     // ใช้ตอนพัฒนา: PCHub.exe --snapshot out.png [--page games | cleaner | storage | mode-editor | boost | splash | ...]
     //   [--scan] [--delay ms] [--size 1400x900] [--demo-session] [--export-wrapped out.png]
@@ -69,6 +115,9 @@ public partial class App : Application
         window.Show();
         if (args.Contains("--demo-session")) window.ShowDemoSessionCard();
         if (args.Contains("--background")) window.StartBackgroundWork(); // ทดสอบงานเบื้องหลัง (จับเวลาเกม, ปิง)
+        if (args.Contains("--crash-test")) // ทดสอบว่า error ถูกบันทึก และโปรแกรมไม่ปิดหายไป
+            window.Dispatcher.BeginInvoke(() => throw new InvalidOperationException("crash test"),
+                System.Windows.Threading.DispatcherPriority.Background);
 
         Window target = window;
         Task ready = Task.CompletedTask;

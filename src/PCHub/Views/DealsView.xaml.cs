@@ -98,6 +98,7 @@ public partial class DealsView : UserControl
         }
         catch (Exception ex) when (IsNetworkProblem(ex))
         {
+            AppLog.Warn("Deals load failed", ex);
             return null;
         }
     }
@@ -110,6 +111,7 @@ public partial class DealsView : UserControl
         }
         catch (Exception ex) when (IsNetworkProblem(ex))
         {
+            AppLog.Warn("Deals load failed", ex);
             return null;
         }
     }

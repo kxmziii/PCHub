@@ -78,12 +78,15 @@ public class GameSessionService : ObservableObject
         var boost = SettingsService.Boost;
         List<ClosedApp> closed = [];
         PowerState? power = null;
+        AppLog.Info($"Session start: {game.Name} ({game.Id}) boost={boost.Enabled}");
         if (boost.Enabled)
         {
             var toClose = boost.CloseApps.ToList();
             closed = await Task.Run(() => BoostService.CloseApps(toClose));
-            if (boost.RestartHeavyDiscord) await Task.Run(BoostService.RestartDiscordIfHeavy);
+            if (toClose.Count > 0) AppLog.Info($"Boost closed [{string.Join(", ", closed.Select(c => c.ProcessName))}] of [{string.Join(", ", toClose)}]");
+            if (boost.RestartHeavyDiscord && await Task.Run(BoostService.RestartDiscordIfHeavy)) AppLog.Info("Boost restarted heavy Discord");
             if (boost.HighPerformance) power = await Task.Run(PowerPlanService.Boost);
+            if (power != null) AppLog.Info($"Boost power plan: {power.PreviousScheme ?? "overlay " + power.PreviousOverlay} -> high performance");
             foreach (var app in boost.CompanionApps.Where(a => !IsRunning(a))) AppLauncher.Launch(app);
         }
 
@@ -98,6 +101,7 @@ public class GameSessionService : ObservableObject
 
         if (!AppLauncher.Launch(game.ToAppEntry()))
         {
+            AppLog.Warn($"Could not launch {game.Name} ({game.LaunchTarget})");
             await RestoreAsync(power, closed, boost);
             State = SessionState.Idle;
             return false;
@@ -171,6 +175,8 @@ public class GameSessionService : ObservableObject
         }
 
         var reopened = await RestoreAsync(power, closed, boost);
+        AppLog.Info($"Session ended: {game.Name} ({game.Id}) played={session?.Duration:hh\\:mm\\:ss} " +
+                    $"detected={start != null} manual={ManualStopOnly} reopened={reopened} {networkReport?.Summary}");
         State = SessionState.Ended;
         SessionEnded?.Invoke(new SessionResult(game, session, reopened, networkReport));
         return true;

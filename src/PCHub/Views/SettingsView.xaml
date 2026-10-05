@@ -24,6 +24,32 @@
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock x:Name="VersionText" Style="{StaticResource SectionTitle}" Margin="0"/>
                             <TextBlock x:Name="UpdateStatus" Style="{StaticResource BodyText}" FontSize="13"/>
+                            <TextBlock x:Name="MemoryText" FontSize="12.5" Foreground="{StaticResource TextMuted}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- ===== พบปัญหา ===== -->
+                <Border Style="{StaticResource Card}">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="44" Height="44" CornerRadius="22" Margin="0,0,16,0"
+                                VerticalAlignment="Top" Background="{StaticResource AccentSoft}">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xEBE8;" FontSize="18"
+                                       Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+                        </Border>
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionTitle}" Margin="0,0,0,4" Text="เจอปัญหา?"/>
+                            <TextBlock Style="{StaticResource BodyText}" FontSize="13" Margin="0,0,0,12"
+                                       Text="กดสร้างไฟล์รายงาน แล้วส่งไฟล์ .zip ที่ได้ (อยู่บน Desktop) ให้คนทำ PC Hub ทาง Discord&#10;ในไฟล์มีแค่บันทึกการทำงานกับข้อมูลเครื่อง ไม่มีรหัสผ่านหรือไฟล์ส่วนตัว"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource PrimaryButton}" Margin="0,0,10,0" Click="Report_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" FontSize="13" Margin="0,0,8,0"/>
+                                        <TextBlock Text="สร้างไฟล์รายงาน"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource SecondaryButton}" Content="เปิดโฟลเดอร์บันทึก" Click="OpenLogs_Click"/>
+                            </StackPanel>
                         </StackPanel>
                     </DockPanel>
                 </Border>

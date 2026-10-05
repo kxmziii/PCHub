@@ -24,6 +24,14 @@ public partial class SettingsView : UserControl
         ConfirmPlaySwitch.IsChecked = SettingsService.General.ConfirmBeforePlay;
         _ready = true; // ตั้งค่าเริ่มต้นเสร็จ ต่อจากนี้กดสวิตช์ถึงจะบันทึก
 
+        // โชว์ว่า PC Hub ใช้แรมเท่าไหร่ ใครก็เช็คได้ว่าเบาจริง
+        IsVisibleChanged += (_, e) =>
+        {
+            if (!(bool)e.NewValue) return;
+            using var self = System.Diagnostics.Process.GetCurrentProcess();
+            MemoryText.Text = $"ตอนนี้ใช้แรมประมาณ {Helpers.SizeFormatter.Format(self.WorkingSet64)} (ย่อไว้มุมจอจะคืนแรมให้ Windows)";
+        };
+
         if (!UpdateService.IsAvailable)
         {
             UpdateButton.IsEnabled = false;
@@ -35,6 +43,18 @@ public partial class SettingsView : UserControl
         {
             UpdateStatus.Text = "กดเพื่อดูว่ามีเวอร์ชันใหม่ไหม";
         }
+    }
+
+    private void Report_Click(object sender, RoutedEventArgs e)
+    {
+        App.OpenProblemReport();
+        Toast.Show("สร้างไฟล์รายงานไว้บน Desktop แล้ว ส่งไฟล์นี้ให้คนทำ PC Hub ได้เลย");
+    }
+
+    private void OpenLogs_Click(object sender, RoutedEventArgs e)
+    {
+        System.IO.Directory.CreateDirectory(AppLog.FolderPath);
+        System.Diagnostics.Process.Start("explorer.exe", $"\"{AppLog.FolderPath}\"")?.Dispose();
     }
 
     private void Switch_Changed(object sender, RoutedEventArgs e)
