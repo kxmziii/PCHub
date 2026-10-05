@@ -50,6 +50,7 @@ public partial class BoostSettingsWindow : Window
         PowerSwitch.IsChecked = _boost.HighPerformance;
         RestoreSwitch.IsChecked = _boost.RestoreApps;
         MinimizeSwitch.IsChecked = _boost.MinimizeHub;
+        DiscordSwitch.IsChecked = _boost.RestartHeavyDiscord;
 
         _companionItems = CompanionItems(_boost.CompanionApps);
         _companionView = new ListCollectionView(_companionItems) { Filter = MatchesSearch };
@@ -179,6 +180,7 @@ public partial class BoostSettingsWindow : Window
         _boost.HighPerformance = PowerSwitch.IsChecked == true;
         _boost.RestoreApps = RestoreSwitch.IsChecked == true;
         _boost.MinimizeHub = MinimizeSwitch.IsChecked == true;
+        _boost.RestartHeavyDiscord = DiscordSwitch.IsChecked == true;
         // ถ้ากดบันทึกก่อนลิสต์แอพโหลดเสร็จ ใช้ค่าเดิมไป
         if (_closeItems != null) _boost.CloseApps = _closeItems.Where(i => i.IsChecked).Select(i => i.Key).ToList();
         _boost.CompanionApps = _companionItems.Where(i => i.IsChecked && i.App != null).Select(i => i.App!.Clone()).ToList();

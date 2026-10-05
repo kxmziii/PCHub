@@ -18,4 +18,7 @@ public class AppSettings
 
     /// <summary>Steam appid ของเกมที่กดเฝ้าราคาไว้ใน PC Hub (นอกเหนือจาก Wishlist)</summary>
     public List<int> WatchedGames { get; set; } = [];
+
+    /// <summary>รหัสเซิร์ฟ FiveM ที่ติดดาวไว้</summary>
+    public List<string> FiveMFavorites { get; set; } = [];
 }

@@ -87,6 +87,51 @@ public static class BoostService
         }
     }
 
+    private const long HeavyDiscordBytes = 1024L * 1024 * 1024; // 1 GB
+
+    /// <summary>
+    /// รีสตาร์ท Discord ถ้ากินแรมรวมเกิน 1 GB คืนค่า true ถ้ารีสตาร์ท
+    /// (กด X ที่ Discord แค่ย่อไปมุมจอ เลยต้องสั่งปิดตรงๆ ข้อความอยู่บนเซิร์ฟเวอร์ ไม่มีอะไรหาย)
+    /// </summary>
+    public static bool RestartDiscordIfHeavy()
+    {
+        var processes = Process.GetProcessesByName("Discord");
+        try
+        {
+            if (processes.Length == 0) return false;
+            var ram = processes.Sum(p =>
+            {
+                try { return p.WorkingSet64; }
+                catch (InvalidOperationException) { return 0; }
+            });
+            if (ram < HeavyDiscordBytes) return false;
+
+            var exePath = processes.Select(p => ProcessHelper.GetPath(p.Id)).FirstOrDefault(p => p != null);
+            foreach (var p in processes)
+            {
+                try
+                {
+                    p.Kill();
+                    p.WaitForExit(3000);
+                }
+                catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
+                {
+                    // ปิดไปเองแล้ว
+                }
+            }
+
+            // Discord ลงไว้แบบ ...\Discord\app-x.y.z\Discord.exe ให้เปิดผ่าน Update.exe จะได้เวอร์ชันล่าสุดเสมอ
+            var updater = exePath == null ? null : Path.Combine(Path.GetDirectoryName(Path.GetDirectoryName(exePath)!)!, "Update.exe");
+            if (updater != null && File.Exists(updater)) TryStart(updater, "--processStart Discord.exe");
+            else if (exePath != null) TryStart(exePath, "");
+            return true;
+        }
+        finally
+        {
+            foreach (var p in processes) p.Dispose();
+        }
+    }
+
     public static void Reopen(IEnumerable<ClosedApp> apps)
     {
         foreach (var app in apps.Where(a => a.ExePath != null && File.Exists(a.ExePath)))

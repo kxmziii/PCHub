@@ -51,6 +51,8 @@
                               Content="เลิกเล่นแล้วเปิดแอพที่ปิดไปกลับมาให้"/>
                     <CheckBox x:Name="MinimizeSwitch" Style="{StaticResource Switch}" Margin="0,6"
                               Content="ย่อ PC Hub ตอนเกมเปิด แล้วเด้งกลับมาสรุปผลตอนเลิกเล่น"/>
+                    <CheckBox x:Name="DiscordSwitch" Style="{StaticResource Switch}" Margin="0,6"
+                              Content="รีสตาร์ท Discord ก่อนเล่น ถ้ากินแรมเกิน 1 GB (จะหลุดจากห้องเสียงแป๊บนึง)"/>
                 </StackPanel>
             </StackPanel>
         </Border>

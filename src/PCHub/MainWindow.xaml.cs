@@ -27,7 +27,9 @@ public partial class MainWindow : Window
     public MainWindow(bool showTrayIcon = true)
     {
         InitializeComponent();
-        _navButtons = [NavGames, NavDeals, NavWrapped, NavModes, NavCleaner, NavDiscord, NavTools, NavSettings];
+        _navButtons = [NavGames, NavFiveM, NavDeals, NavWrapped, NavModes, NavCleaner, NavDiscord, NavTools, NavSettings];
+        // เมนู FiveM โชว์เฉพาะเครื่องที่ลง FiveM ไว้
+        NavFiveM.Visibility = FiveMService.IsInstalled ? Visibility.Visible : Visibility.Collapsed;
         VersionText.Text = "เวอร์ชัน " + Assembly.GetExecutingAssembly().GetName().Version?.ToString(3);
         ShowPage("games");
 
@@ -142,6 +144,7 @@ public partial class MainWindow : Window
         {
             page = key switch
             {
+                "fivem" => new FiveMView(),
                 "deals" => new DealsView(),
                 "wrapped" => new WrappedView(),
                 "modes" => new ModesView(),
@@ -202,6 +205,7 @@ public partial class MainWindow : Window
             SessionTime.Text = TimeFormatter.Long(played.Duration);
             var notes = new List<string>();
             if (played.Duration < TimeSpan.FromMinutes(1)) notes.Add("เล่นไม่ถึงนาที ไม่นับเป็นเวลาเล่น");
+            if (result.Network is { } network) notes.Add(network.Summary);
             if (result.ReopenedApps > 0) notes.Add($"เปิดแอพที่ปิดไป {result.ReopenedApps} ตัวกลับมาให้แล้ว");
             if (notes.Count > 0) ShowSessionNote(string.Join("\n", notes));
         }

@@ -35,6 +35,42 @@ public static class PingService
 
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(2);
 
+    /// <summary>วัดปิงแบบเร็วไปยัง host:port ใดๆ (เช่น เซิร์ฟ FiveM) คืนค่าเฉลี่ยเป็น ms หรือ null ถ้าต่อไม่ได้</summary>
+    public static async Task<double?> QuickPingAsync(string host, int port, int samples = 2)
+    {
+        IPAddress? address;
+        try
+        {
+            address = IPAddress.TryParse(host, out var ip)
+                ? ip
+                : (await Dns.GetHostAddressesAsync(host)).FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
+        }
+        catch (SocketException)
+        {
+            return null;
+        }
+        if (address == null) return null;
+
+        var times = new List<double>();
+        for (var i = 0; i < samples; i++)
+        {
+            using var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            using var timeout = new CancellationTokenSource(Timeout);
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                await socket.ConnectAsync(address, port, timeout.Token);
+                times.Add(stopwatch.Elapsed.TotalMilliseconds);
+            }
+            catch (Exception ex) when (ex is SocketException or OperationCanceledException)
+            {
+                // ต่อไม่ได้รอบนี้
+            }
+        }
+        // ใช้ค่าต่ำสุด: รอบแรกมักช้ากว่าจริงเพราะต้องเปิดการเชื่อมต่อใหม่
+        return times.Count > 0 ? times.Min() : null;
+    }
+
     public static async Task<PingResult> MeasureAsync(PingTarget target, int samples = 5)
     {
         IPAddress? address;

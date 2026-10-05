@@ -14,8 +14,8 @@ public enum SessionState
     Ended,
 }
 
-/// <summary>ผลการเล่น 1 รอบ (Session = null ถ้าไม่เห็นเกมเปิดขึ้นมา)</summary>
-public record SessionResult(Game Game, PlaySession? Session, int ReopenedApps);
+/// <summary>ผลการเล่น 1 รอบ (Session = null ถ้าไม่เห็นเกมเปิดขึ้นมา, Network = null ถ้าเล่นสั้นเกินจะสรุปเน็ต)</summary>
+public record SessionResult(Game Game, PlaySession? Session, int ReopenedApps, NetworkReport? Network = null);
 
 /// <summary>
 /// เซสชันเล่นเกม: เตรียมเครื่อง → เปิดเกม → จับเวลาจนเลิกเล่น → คืนค่าเครื่อง
@@ -82,6 +82,7 @@ public class GameSessionService : ObservableObject
         {
             var toClose = boost.CloseApps.ToList();
             closed = await Task.Run(() => BoostService.CloseApps(toClose));
+            if (boost.RestartHeavyDiscord) await Task.Run(BoostService.RestartDiscordIfHeavy);
             if (boost.HighPerformance) power = await Task.Run(PowerPlanService.Boost);
             foreach (var app in boost.CompanionApps.Where(a => !IsRunning(a))) AppLauncher.Launch(app);
         }
@@ -105,6 +106,7 @@ public class GameSessionService : ObservableObject
         State = SessionState.WaitingForGame;
         DateTime? start = null;
         DateTime? lastSeen = null; // ครั้งสุดท้ายที่ยังเห็นเกมเปิดอยู่ (ใช้เป็นเวลาเลิกเล่น)
+        var network = new NetworkMonitor(); // วัดเน็ตระหว่างเล่น
         var folder = game.InstallFolder;
 
         if (folder != null && Directory.Exists(folder))
@@ -124,6 +126,7 @@ public class GameSessionService : ObservableObject
             {
                 StartedAt = start;
                 State = SessionState.Playing;
+                network.Start();
                 // เช็คทุก 5 วินาที ไม่เจอเกม 2 ครั้งติดกัน = เลิกเล่นแล้ว (กันพลาดตอนเกมรีสตาร์ทตัวเอง)
                 var misses = 0;
                 while (misses < 2 && !token.IsCancellationRequested)
@@ -151,9 +154,14 @@ public class GameSessionService : ObservableObject
             start = DateTime.Now;
             StartedAt = start;
             State = SessionState.Playing;
+            network.Start();
             await Delay(Timeout.InfiniteTimeSpan, token);
             lastSeen = DateTime.Now;
         }
+
+        // สรุปเน็ตเมื่อมีข้อมูลพอ (วัดทุก 10 วินาที อย่างน้อย 3 ครั้ง)
+        var networkReport = network.Stop();
+        if (networkReport.Samples < 3) networkReport = null;
 
         PlaySession? session = null;
         if (start != null)
@@ -164,7 +172,7 @@ public class GameSessionService : ObservableObject
 
         var reopened = await RestoreAsync(power, closed, boost);
         State = SessionState.Ended;
-        SessionEnded?.Invoke(new SessionResult(game, session, reopened));
+        SessionEnded?.Invoke(new SessionResult(game, session, reopened, networkReport));
         return true;
     }
 

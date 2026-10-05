@@ -82,9 +82,12 @@
                                Foreground="{StaticResource TextMuted}"/>
                 </StackPanel>
 
-                <!-- เมนูหลัก -->
+                <!-- เมนูหลัก (เลื่อนได้ถ้าหน้าต่างเตี้ยและมีการ์ดเซสชันโผล่) -->
+                <ScrollViewer VerticalScrollBarVisibility="Hidden">
                 <StackPanel>
                     <views:NavButton x:Name="NavGames" Tag="games" Icon="&#xE7FC;" Content="คลังเกม"
+                                     Checked="Nav_Checked"/>
+                    <views:NavButton x:Name="NavFiveM" Tag="fivem" Icon="&#xE804;" Content="FiveM"
                                      Checked="Nav_Checked"/>
                     <views:NavButton x:Name="NavDeals" Tag="deals" Icon="&#xE719;" Content="ของฟรี &amp; ลดราคา"
                                      Checked="Nav_Checked"/>
@@ -99,6 +102,7 @@
                     <views:NavButton x:Name="NavTools" Tag="tools" Icon="&#xE90F;" Content="เครื่องมือ"
                                      Checked="Nav_Checked"/>
                 </StackPanel>
+                </ScrollViewer>
             </DockPanel>
         </Border>
 

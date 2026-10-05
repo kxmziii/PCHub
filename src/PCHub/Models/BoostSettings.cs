@@ -14,6 +14,12 @@ public class BoostSettings
     /// <summary>ย่อ PC Hub ตอนเกมเปิด</summary>
     public bool MinimizeHub { get; set; } = true;
 
+    /// <summary>
+    /// รีสตาร์ท Discord ก่อนเล่นถ้ากินแรมเกิน 1 GB (Discord ยอมรับเองว่ามีปัญหาแรมบวม)
+    /// ปิดไว้เป็นค่าเริ่มต้น เพราะรีสตาร์ทแล้วจะหลุดจากห้องเสียงชั่วคราว
+    /// </summary>
+    public bool RestartHeavyDiscord { get; set; }
+
     /// <summary>ชื่อโปรเซสของแอพที่จะปิดตอนเล่น เช่น "chrome", "OneDrive"</summary>
     public List<string> CloseApps { get; set; } = [];
 
