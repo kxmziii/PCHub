@@ -168,6 +168,8 @@ public partial class GamesView : UserControl
 
     private async void Play(Game game)
     {
+        if (!ConfirmPlay(game)) return;
+
         var failText = $"เปิด {game.Name} ไม่ได้ (เกมอาจถูกลบหรือย้ายไปแล้ว ลองกดหาเกมใหม่)";
         var session = GameSessionService.Instance;
 
@@ -185,6 +187,38 @@ public partial class GamesView : UserControl
             ? $"กำลังเตรียมเครื่องและเปิด {game.Name}..."
             : $"กำลังเปิด {game.Name}...");
         if (!await session.PlayAsync(game)) Toast.Show(failText, isError: true);
+    }
+
+    /// <summary>ถามก่อนเปิดเกม (กันกดพลาด) พร้อมบอกว่า Game Boost จะทำอะไรให้บ้าง ปิดได้ในหน้าตั้งค่า</summary>
+    private bool ConfirmPlay(Game game)
+    {
+        var general = SettingsService.General;
+        if (!general.ConfirmBeforePlay) return true;
+
+        var boost = SettingsService.Boost;
+        var steps = new List<string>();
+        if (GameSessionService.Instance.IsActive)
+        {
+            steps.Add($"กำลังเล่น {GameSessionService.Instance.CurrentGame?.Name} อยู่ เกมนี้จะเปิดเฉยๆ ไม่จับเวลา");
+        }
+        else if (boost.Enabled)
+        {
+            if (boost.CloseApps.Count > 0) steps.Add($"ปิดแอพเบื้องหลัง {boost.CloseApps.Count} ตัว (เลิกเล่นแล้วเปิดคืนให้)");
+            if (boost.HighPerformance) steps.Add("สลับเป็นโหมดพลังงานแรงสุด");
+            if (boost.CompanionApps.Count > 0) steps.Add($"เปิด {string.Join(", ", boost.CompanionApps.Select(a => a.Name))} พร้อมเกม");
+        }
+        var message = steps.Count > 0
+            ? "Game Boost จะ:\n" + string.Join("\n", steps.Select(s => $"•  {s}"))
+            : "PC Hub จะจับเวลาเล่นให้";
+
+        var (confirmed, dontAskAgain) = ConfirmDialog.ShowWithDontAsk(Window.GetWindow(this)!, $"เล่น {game.Name}?", message, "เล่นเลย");
+        if (dontAskAgain)
+        {
+            general.ConfirmBeforePlay = false;
+            SettingsService.Save();
+            Toast.Show("ต่อไปกดการ์ดแล้วเปิดเกมเลย (เปิดการถามกลับได้ในหน้าตั้งค่า)");
+        }
+        return confirmed;
     }
 
     private void Card_MouseRightButtonUp(object sender, MouseButtonEventArgs e)

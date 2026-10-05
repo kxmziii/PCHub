@@ -6,11 +6,17 @@
     <StackPanel Margin="28,24,28,24">
         <TextBlock x:Name="TitleText" Style="{StaticResource SectionTitle}" FontSize="19"/>
         <TextBlock x:Name="MessageText" Style="{StaticResource BodyText}" Margin="0,0,0,24"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Style="{StaticResource SecondaryButton}" Content="ยกเลิก" MinWidth="100"
-                    Margin="0,0,10,0" IsCancel="True"/>
-            <Button x:Name="ConfirmButton" Style="{StaticResource PrimaryButton}" MinWidth="100"
-                    Click="Confirm_Click"/>
-        </StackPanel>
+        <DockPanel>
+            <!-- ช่อง "ไม่ต้องถามอีก" (โชว์เฉพาะบางกล่อง) -->
+            <CheckBox x:Name="DontAskCheck" DockPanel.Dock="Left" Padding="2,4" FontSize="13"
+                      Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center"
+                      Content="ไม่ต้องถามอีก" Visibility="Collapsed"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource SecondaryButton}" Content="ยกเลิก" MinWidth="100"
+                        Margin="0,0,10,0" IsCancel="True"/>
+                <Button x:Name="ConfirmButton" Style="{StaticResource PrimaryButton}" MinWidth="100"
+                        Click="Confirm_Click"/>
+            </StackPanel>
+        </DockPanel>
     </StackPanel>
 </Window>

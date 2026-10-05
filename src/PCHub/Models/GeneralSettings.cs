@@ -9,6 +9,9 @@ public class GeneralSettings
     /// <summary>จับเวลาเล่นเองแม้เปิดเกมจาก launcher โดยตรง</summary>
     public bool AutoTrackGames { get; set; } = true;
 
+    /// <summary>ถามก่อนเปิดเกมจากคลังเกม (กันกดพลาด)</summary>
+    public bool ConfirmBeforePlay { get; set; } = true;
+
     /// <summary>แจ้งเตือนที่มุมจอเมื่อเกมที่เฝ้าราคาลด, Epic แจกเกมฟรี, เกมที่เล่นอยู่มีแพตช์ใหม่</summary>
     public bool DealAlerts { get; set; } = true;
 

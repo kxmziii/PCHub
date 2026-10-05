@@ -48,6 +48,14 @@
                                            Text="เปิดเงียบๆ ไว้ที่มุมจอ ไม่เด้งหน้าต่างตอนเปิดเครื่อง"/>
                             </StackPanel>
                         </CheckBox>
+                        <CheckBox x:Name="ConfirmPlaySwitch" Style="{StaticResource Switch}" Margin="0,6"
+                                  Checked="Switch_Changed" Unchecked="Switch_Changed">
+                            <StackPanel>
+                                <TextBlock Text="ถามก่อนเปิดเกมจากคลังเกม"/>
+                                <TextBlock FontSize="12.5" Foreground="{StaticResource TextMuted}"
+                                           Text="กันกดการ์ดพลาดแล้วเกมเปิด (และ Game Boost ปิดแอพ) ทันที"/>
+                            </StackPanel>
+                        </CheckBox>
                         <CheckBox x:Name="AlertSwitch" Style="{StaticResource Switch}" Margin="0,6"
                                   Checked="Switch_Changed" Unchecked="Switch_Changed">
                             <StackPanel>

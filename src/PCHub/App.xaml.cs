@@ -89,6 +89,13 @@ public partial class App : Application
                 target = new BoostSettingsWindow { Owner = window, ShowActivated = false };
                 target.Show();
                 break;
+            case "confirm-play":
+                target = ConfirmDialog.CreateForTest("เล่น PUBG: BATTLEGROUNDS?",
+                    "Game Boost จะ:\n•  สลับเป็นโหมดพลังงานแรงสุด\n•  เปิด Discord พร้อมเกม", "เล่นเลย");
+                target.Owner = window;
+                target.ShowActivated = false;
+                target.Show();
+                break;
             case "add-watch":
                 target = new AddWatchWindow { Owner = window, ShowActivated = false };
                 target.Show();
