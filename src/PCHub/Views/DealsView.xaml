@@ -7,7 +7,7 @@
         <!-- การ์ดแนวตั้ง (Epic แจกฟรี) -->
         <DataTemplate x:Key="TallDeal" DataType="{x:Type models:Deal}">
             <Button Style="{StaticResource GameCard}" Width="150" Margin="0,0,16,20" Click="Deal_Click"
-                    ToolTip="เปิดหน้าร้านเพื่อกดรับ">
+                    ToolTip="เปิดหน้าร้านในแอพเพื่อกดรับ">
                 <StackPanel>
                     <Border Height="200" CornerRadius="10" Background="{StaticResource CardBg}">
                         <Border CornerRadius="10">
@@ -136,7 +136,7 @@
             <StackPanel>
                 <TextBlock Style="{StaticResource PageTitle}" Text="ของฟรี &amp; ลดราคา"/>
                 <TextBlock Style="{StaticResource PageSubtitle}"
-                           Text="เกมแจกฟรีจาก Epic Games และเกมลดราคาบน Steam (ราคาไทย) กดการ์ดเพื่อเปิดหน้าร้าน"/>
+                           Text="เกมแจกฟรีจาก Epic Games และเกมลดราคาบน Steam (ราคาไทย) กดการ์ดเพื่อเปิดหน้าร้านในแอพ Steam / Epic"/>
             </StackPanel>
             <Button x:Name="RefreshButton" Grid.Column="1" Style="{StaticResource IconButton}" Width="38" Height="38"
                     VerticalAlignment="Top" Margin="16,4,0,0" Content="&#xE72C;" ToolTip="โหลดใหม่" Click="Refresh_Click"/>

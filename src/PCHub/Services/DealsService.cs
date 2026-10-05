@@ -33,7 +33,9 @@ public static class DealsService
             if (!game.TryGetProperty("promotions", out var promotions) || promotions.ValueKind != JsonValueKind.Object) continue;
 
             var title = game.GetProperty("title").GetString() ?? "";
-            var url = $"https://store.epicgames.com/p/{EpicSlug(game)}";
+            var slug = EpicSlug(game);
+            var url = $"https://store.epicgames.com/p/{slug}";
+            var appUrl = StoreLinks.Epic(slug);
             var image = EpicImage(game);
             var fullPrice = game.TryGetProperty("price", out var price)
                 ? FormatMoney(price.GetProperty("totalPrice").GetProperty("originalPrice").GetInt64(), "THB")
@@ -41,9 +43,9 @@ public static class DealsService
 
             if (FreeOffer(promotions, "promotionalOffers") is { } current &&
                 current.Start <= DateTime.Now && DateTime.Now < current.End)
-                now.Add(new Deal(title, image, url, "ฟรี", fullPrice, $"ฟรีถึง {FormatDate(current.End)}"));
+                now.Add(new Deal(title, image, url, "ฟรี", fullPrice, $"ฟรีถึง {FormatDate(current.End)}", appUrl));
             else if (FreeOffer(promotions, "upcomingPromotionalOffers") is { } next)
-                upcoming.Add(new Deal(title, image, url, "ฟรี", fullPrice, $"เริ่ม {FormatDate(next.Start)}"));
+                upcoming.Add(new Deal(title, image, url, "ฟรี", fullPrice, $"เริ่ม {FormatDate(next.Start)}", appUrl));
         }
         return new EpicFreeGames(now, upcoming);
     }
@@ -73,7 +75,8 @@ public static class DealsService
                 $"https://store.steampowered.com/app/{id}",
                 FormatMoney(final.GetInt64(), currency),
                 original,
-                $"-{item.GetProperty("discount_percent").GetInt32()}%"));
+                $"-{item.GetProperty("discount_percent").GetInt32()}%",
+                StoreLinks.Steam((int)id)));
         }
         return deals;
     }

@@ -140,21 +140,16 @@ public partial class DealsView : UserControl
         UpdateWatchlist();
     }
 
-    private void Watch_Click(object sender, RoutedEventArgs e) =>
-        OpenUrl(((WatchedGame)((FrameworkElement)sender).DataContext).StoreUrl);
-
-    private void Deal_Click(object sender, RoutedEventArgs e) =>
-        OpenUrl(((Deal)((FrameworkElement)sender).DataContext).StoreUrl);
-
-    private static void OpenUrl(string url)
+    // เปิดหน้าร้านในแอพ Steam / Epic (ถ้าไม่ได้ลงแอพ จะเปิดเว็บแทน)
+    private void Watch_Click(object sender, RoutedEventArgs e)
     {
-        try
-        {
-            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true })?.Dispose();
-        }
-        catch (Win32Exception)
-        {
-            // ไม่มีเบราว์เซอร์ตั้งค่าไว้ ข้ามไป
-        }
+        var game = (WatchedGame)((FrameworkElement)sender).DataContext;
+        StoreLinks.Open(game.AppUrl, game.StoreUrl);
+    }
+
+    private void Deal_Click(object sender, RoutedEventArgs e)
+    {
+        var deal = (Deal)((FrameworkElement)sender).DataContext;
+        StoreLinks.Open(deal.AppUrl, deal.StoreUrl);
     }
 }

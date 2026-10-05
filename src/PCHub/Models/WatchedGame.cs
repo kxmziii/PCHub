@@ -13,5 +13,6 @@ public record WatchedGame(
 {
     public bool IsOnSale => DiscountPercent > 0;
     public string StoreUrl => $"https://store.steampowered.com/app/{AppId}";
+    public string AppUrl => Services.StoreLinks.Steam(AppId);
     public string Badge => IsOnSale ? $"-{DiscountPercent}%" : FromWishlist ? "Wishlist" : "เฝ้าราคา";
 }
